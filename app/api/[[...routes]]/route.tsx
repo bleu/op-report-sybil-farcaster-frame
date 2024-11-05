@@ -5,14 +5,6 @@ import { devtools } from "frog/dev";
 // import { neynar } from 'frog/hubs'
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
-//import { generateCaptchaChallenge } from "@airstack/frog";
-//import { validateCaptchaChallenge } from "@airstack/frog";
-
-// const generateRandomNumber = () => {
-//   const rNumber = Math.floor(Math.random() * 49) + 1;
-//   console.log("generating random number", rNumber);
-//   return rNumber;
-// };
 
 const generateCaptchaText = () => {
   const characters =
@@ -25,10 +17,6 @@ const generateCaptchaText = () => {
 };
 
 const generateInitialState = () => {
-  // return {
-  //   numA: generateRandomNumber(),
-  //   numB: generateRandomNumber(),
-  // };
   return { captchaText: generateCaptchaText() };
 };
 
@@ -38,7 +26,6 @@ const generateRandomFontSize = () => {
 };
 
 const generateRandomAngle = () => {
-  // Generate a random number between -45 and 45
   return Math.floor(Math.random() * 91) - 45;
 };
 
@@ -53,18 +40,26 @@ const app = new Frog({
 });
 
 app.frame("/verify-captcha", async (c) => {
-  console.log("IN VERIFY CAPTCHA");
   const { inputText, status } = c ?? {};
   const state = c.deriveState();
-  console.log({ status });
-  console.log({ state });
-  console.log({ previousState: c.previousState });
-  console.log({ inputText });
 
-  // const isValidated = Number(inputText) === state.numA + state.numB;
+  c.req.header();
+
+  //@ts-ignore
   const isValidated = inputText === state.captchaText;
 
   const intents = isValidated ? [] : [<Button action="/">Try Again</Button>];
+
+  const casterFid = c.frameData?.castId.fid;
+  const triggerFid = c.frameData?.fid;
+
+  if (isValidated) {
+    console.log("Validated report");
+    console.log({ casterFid, triggerFid });
+  } else {
+    console.log("Validated report");
+    console.log({ casterFid, triggerFid });
+  }
 
   return c.res({
     image: (
@@ -96,21 +91,19 @@ app.frame("/verify-captcha", async (c) => {
 });
 
 app.frame("/", (c) => {
-  console.log("IN MAIN APP");
   const { buttonValue, inputText, status } = c;
   const userInputtedText = inputText || buttonValue;
 
   if (status === "response") {
     c.deriveState((previousState) => {
-      // Clear Frames state
-      // previousState.numA = generateRandomNumber();
-      // previousState.numB = generateRandomNumber();
+      //@ts-ignore
       previousState.captchaText = generateCaptchaText();
     });
-    console.log("status is of type response");
   }
 
   const state = c.deriveState();
+  //@ts-ignore
+  const characters = state.captchaText.split("");
 
   return c.res({
     image: (
@@ -133,7 +126,6 @@ app.frame("/", (c) => {
         }}
       >
         <p>You are about to report this user as sybil</p>
-        {/* <p>{`Just confirm you're human, enter the sum of ${state.numA} and ${state.numB}`}</p> */}
         <p>Just confirm you're human, enter the following text:</p>
         <div
           style={{
@@ -142,60 +134,18 @@ app.frame("/", (c) => {
             textAlign: "center",
           }}
         >
-          <div
-            style={{
-              fontSize: generateRandomFontSize(),
-              transform: `rotate(${generateRandomAngle()}deg)`,
-              marginRight: "30px",
-            }}
-          >
-            {state.captchaText[0]}
-          </div>
-          <div
-            style={{
-              fontSize: generateRandomFontSize(),
-              transform: `rotate(${generateRandomAngle()}deg)`,
-              marginRight: "30px",
-            }}
-          >
-            {state.captchaText[1]}
-          </div>
-          <div
-            style={{
-              fontSize: generateRandomFontSize(),
-              transform: `rotate(${generateRandomAngle()}deg)`,
-              marginRight: "30px",
-            }}
-          >
-            {state.captchaText[2]}
-          </div>
-          <div
-            style={{
-              fontSize: generateRandomFontSize(),
-              transform: `rotate(${generateRandomAngle()}deg)`,
-              marginRight: "30px",
-            }}
-          >
-            {state.captchaText[3]}
-          </div>
-          <div
-            style={{
-              fontSize: generateRandomFontSize(),
-              transform: `rotate(${generateRandomAngle()}deg)`,
-              marginRight: "30px",
-            }}
-          >
-            {state.captchaText[4]}
-          </div>
-          <div
-            style={{
-              fontSize: generateRandomFontSize(),
-              transform: `rotate(${generateRandomAngle()}deg)`,
-              marginRight: "30px",
-            }}
-          >
-            {state.captchaText[5]}
-          </div>
+          {characters.map((char: string, index: number) => (
+            <div
+              key={index}
+              style={{
+                fontSize: generateRandomFontSize(),
+                transform: `rotate(${generateRandomAngle()}deg)`,
+                marginRight: "30px",
+              }}
+            >
+              {char}
+            </div>
+          ))}
         </div>
       </div>
     ),
