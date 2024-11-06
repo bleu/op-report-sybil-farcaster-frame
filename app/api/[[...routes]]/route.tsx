@@ -3,7 +3,6 @@
 import {
   decryptCaptchaChallenge,
   generateEncryptedCaptchaText,
-  generateInitialState,
 } from "@/app/utils";
 import { Button, Frog, TextInput } from "frog";
 import { devtools } from "frog/dev";
@@ -12,7 +11,9 @@ import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
 
 const app = new Frog({
-  initialState: generateInitialState(),
+  initialState: {
+    captchaText: generateEncryptedCaptchaText(),
+  },
   assetsPath: "/",
   basePath: "/api",
 
@@ -30,15 +31,20 @@ app.frame("/verify-captcha", async (c) => {
 
   const intents = isValidated ? [] : [<Button action="/">Try Again</Button>];
 
-  const casterFid = c.frameData?.castId.fid;
-  const triggerFid = c.frameData?.fid;
-
+  const reportLog = {
+    triggerFid: c.frameData?.fid,
+    casterFid: c.frameData?.castId.fid,
+    castHash: c.frameData?.castId.hash,
+    messageHash: c.frameData?.messageHash,
+    timestamp: c.frameData?.timestamp,
+    network: c.frameData?.network,
+  };
   if (isValidated) {
     console.log("Validated report");
-    console.log({ casterFid, triggerFid });
+    console.log({ reportLog });
   } else {
     console.log("Not Valid report");
-    console.log({ casterFid, triggerFid });
+    console.log({ reportLog });
   }
 
   return c.res({
@@ -65,6 +71,7 @@ app.frame("/", (c) => {
     intents: [
       <TextInput placeholder="Your answer..." />,
       <Button action="/verify-captcha">Submit</Button>,
+      <Button.AddCastAction action="/report">Add action</Button.AddCastAction>,
     ],
   });
 });
@@ -72,11 +79,13 @@ app.frame("/", (c) => {
 app.castAction(
   "/report",
   (c) => {
-    console.log(
-      `Cast Action to ${JSON.stringify(c.actionData.castId)} from ${
-        c.actionData.fid
-      }`
-    );
+    // console.log({ req: c.req.json() });
+    // console.log({ actionData: c.actionData });
+    // console.log(
+    //   `Cast Action to ${JSON.stringify(c.actionData.castId)} from ${
+    //     c.actionData.fid
+    //   }`
+    // );
     return c.res({ type: "frame", path: "/" });
   },
   { name: "Report Sybil", icon: "megaphone" }

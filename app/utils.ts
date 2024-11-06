@@ -8,10 +8,6 @@ export function generateEncryptedCaptchaText() {
   return encryptCaptchaChallenge(result);
 }
 
-export function generateInitialState() {
-  return { captchaText: generateEncryptedCaptchaText() };
-}
-
 export function generateRandomFontSize() {
   const sizes = [48, 56, 64];
   return sizes[Math.floor(Math.random() * sizes.length)];
@@ -51,7 +47,7 @@ export function encryptCaptchaChallenge(captchaToEncode: string): string {
     result += String.fromCharCode(newCharCode);
   }
 
-  return result;
+  return encodeURIComponent(result);
 }
 
 export function decryptCaptchaChallenge(encryptedCaptcha: string): string {
@@ -67,11 +63,13 @@ export function decryptCaptchaChallenge(encryptedCaptcha: string): string {
     );
   }
 
+  const encryptedCaptchaString = decodeURIComponent(encryptedCaptcha);
+
   let result = "";
-  for (let i = 0; i < encryptedCaptcha.length; i++) {
+  for (let i = 0; i < encryptedCaptchaString.length; i++) {
     // Get the shift amount from the current key character
     const shift = key.charCodeAt(i % key.length) % 26;
-    const charCode = encryptedCaptcha.charCodeAt(i);
+    const charCode = encryptedCaptchaString.charCodeAt(i);
 
     // Reverse the shift and wrap around if necessary
     let newCharCode = charCode - shift;
