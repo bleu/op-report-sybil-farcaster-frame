@@ -3,10 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --port 3001",
+    "dev": "next dev",
     "deploy": "vercel",
     "build": "next build",
-    "start": "next start --port 3001",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {

@@ -34,7 +34,6 @@ export async function GET(request: Request) {
           paddingRight: 10,
         }}
       >
-        {/* <p>You are about to report this user as sybil</p> */}
         <p>Confirm you're human:</p>
         <div
           style={{

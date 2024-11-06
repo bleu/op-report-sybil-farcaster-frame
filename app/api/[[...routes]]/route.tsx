@@ -42,7 +42,9 @@ app.frame("/verify-captcha", async (c) => {
   }
 
   return c.res({
-    image: `https://jean.ngrok.app/success?isValidated=${String(isValidated)}`,
+    image: `${
+      process.env.APP_URL || "http://localhost:3000"
+    }/success?isValidated=${String(isValidated)}`,
     intents,
   });
 });
@@ -56,8 +58,10 @@ app.frame("/", (c) => {
   }
 
   return c.res({
-    //@ts-ignore
-    image: `https://jean.ngrok.app/captcha?text=${c.deriveState().captchaText}`,
+    image: `${process.env.APP_URL || "http://localhost:3000"}/captcha?text=${
+      //@ts-ignore
+      c.deriveState().captchaText
+    }`,
     intents: [
       <TextInput placeholder="Your answer..." />,
       <Button action="/verify-captcha">Submit</Button>,
