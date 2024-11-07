@@ -9,27 +9,7 @@ import { devtools } from "frog/dev";
 // import { neynar } from 'frog/hubs'
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
-
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
-interface Report {
-  reporterFid: bigint;
-  sybilFid: bigint;
-  castHash: string | undefined;
-  messageHash: string | undefined;
-  network: number | undefined;
-  reportTimestamp: string | undefined;
-}
-
-// Create a new report
-async function createReport(report: Report) {
-  const _report = await prisma.report.create({
-    data: report,
-  });
-  return _report;
-}
+import { type Report, createReport } from "@/app/client";
 
 const app = new Frog({
   initialState: {
