@@ -10,6 +10,27 @@ import { devtools } from "frog/dev";
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
 
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+interface Report {
+  reporterFid: bigint;
+  sybilFid: bigint;
+  castHash: string | undefined;
+  messageHash: string | undefined;
+  network: number | undefined;
+  reportTimestamp: string | undefined;
+}
+
+// Create a new report
+async function createReport(report: Report) {
+  const _report = await prisma.report.create({
+    data: report,
+  });
+  return _report;
+}
+
 const app = new Frog({
   initialState: {
     captchaText: generateEncryptedCaptchaText(),
@@ -31,20 +52,25 @@ app.frame("/verify-captcha", async (c) => {
 
   const intents = isValidated ? [] : [<Button action="/">Try Again</Button>];
 
-  const reportLog = {
-    triggerFid: c.frameData?.fid,
-    casterFid: c.frameData?.castId.fid,
-    castHash: c.frameData?.castId.hash,
-    messageHash: c.frameData?.messageHash,
-    timestamp: c.frameData?.timestamp,
-    network: c.frameData?.network,
-  };
-  if (isValidated) {
-    console.log("Validated report");
-    console.log({ reportLog });
-  } else {
-    console.log("Not Valid report");
-    console.log({ reportLog });
+  const reporterFid = c.frameData?.fid;
+  const sybilFid = c.frameData?.castId.fid;
+
+  if (reporterFid && sybilFid && isValidated) {
+    const reportLog: Report = {
+      reporterFid: BigInt(reporterFid),
+      sybilFid: BigInt(sybilFid),
+      castHash: c.frameData?.castId.hash,
+      messageHash: c.frameData?.messageHash,
+      reportTimestamp: c.frameData?.timestamp
+        ? new Date(c.frameData.timestamp).toISOString()
+        : undefined,
+      network: c.frameData?.network,
+    };
+    await createReport(reportLog);
+    if (isValidated) {
+      console.log("Validated report");
+      console.log({ reportLog });
+    }
   }
 
   return c.res({
@@ -71,7 +97,6 @@ app.frame("/", (c) => {
     intents: [
       <TextInput placeholder="Your answer..." />,
       <Button action="/verify-captcha">Submit</Button>,
-      <Button.AddCastAction action="/report">Add action</Button.AddCastAction>,
     ],
   });
 });

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@airstack/frog": "^0.0.19",
+    "@prisma/client": "^5.22.0",
     "dotenv": "^16.4.5",
     "frog": "^0.18.0",
     "hono": "^4",
@@ -22,6 +23,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "prisma": "^5.22.0",
     "typescript": "^5",
     "vercel": "^32.4.1"
   },
