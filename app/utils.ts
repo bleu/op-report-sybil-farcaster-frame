@@ -9,7 +9,7 @@ export function generateEncryptedCaptchaText() {
 }
 
 export function generateRandomFontSize() {
-  const sizes = [48, 56, 64];
+  const sizes = [64, 72, 80];
   return sizes[Math.floor(Math.random() * sizes.length)];
 }
 
@@ -83,4 +83,8 @@ export function decryptCaptchaChallenge(encryptedCaptcha: string): string {
   }
 
   return result;
+}
+
+export function getAppUrl() {
+  return process.env.APP_URL || "http://localhost:3000";
 }
