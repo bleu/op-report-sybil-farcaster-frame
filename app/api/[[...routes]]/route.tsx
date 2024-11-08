@@ -10,7 +10,7 @@ import { devtools } from "frog/dev";
 // import { neynar } from 'frog/hubs'
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
-import { type Report, createReport } from "@/app/client";
+import { type Report, createReport, getSybilReportCount } from "@/app/client";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -23,7 +23,7 @@ const app = new Frog({
 
   // Supply a Hub to enable frame verification.
   // hub: neynar({ apiKey: 'NEYNAR_FROG_FM' })
-  title: "Farcaster Sybil Report",
+  title: "Report Sybil",
 });
 
 app.frame("/verify-captcha", async (c) => {
@@ -35,7 +35,11 @@ app.frame("/verify-captcha", async (c) => {
       //@ts-ignore
       inputText === decryptCaptchaChallenge(state.captchaText);
 
-    const intents = isValidated ? [] : [<Button action="/">Try Again</Button>];
+    if (!isValidated)
+      return c.res({
+        image: `${getAppUrl()}/wrong-captcha.png`,
+        intents: [<Button action="/">Try Again</Button>],
+      });
 
     const reporterFid = c.frameData?.fid;
     const sybilFid = c.frameData?.castId.fid;
@@ -50,7 +54,7 @@ app.frame("/verify-captcha", async (c) => {
       throw new Error("There's not enough context to create a report");
     }
 
-    if (reporterFid && sybilFid && isValidated) {
+    if (reporterFid && sybilFid) {
       const reportLog: Report = {
         reporterFid: BigInt(reporterFid),
         sybilFid: BigInt(sybilFid),
@@ -62,17 +66,17 @@ app.frame("/verify-captcha", async (c) => {
         network: c.frameData?.network,
       };
       await createReport(reportLog);
-      if (isValidated) {
-        console.log("Validated report");
-        console.log({ reportLog });
-      }
+      console.log("Validated report");
+      console.log({ reportLog });
     }
 
+    const reportCount = sybilFid
+      ? String(await getSybilReportCount(BigInt(sybilFid)))
+      : "0";
+
     return c.res({
-      image: isValidated
-        ? `${getAppUrl()}/success.png`
-        : `${getAppUrl()}/wrong-captcha.png`,
-      intents,
+      image: `${getAppUrl()}/success?reportCount=${reportCount}`,
+      intents: [],
     });
   } catch (error) {
     return c.res({
