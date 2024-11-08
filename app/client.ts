@@ -1,31 +1,22 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Report } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export interface Report {
-  reporterFid: bigint;
-  sybilFid: bigint;
-  castHash: string | undefined;
-  messageHash: string | undefined;
-  network: number | undefined;
-  reportTimestamp: string | undefined;
-}
+export type CreateReportParams = Omit<Report, "id" | "createdAt">;
 
-export async function createReport(report: Report) {
-  const _report = await prisma.report.create({
-    data: report,
+export async function createReport(data: CreateReportParams) {
+  const report = await prisma.report.create({
+    data,
   });
-  return _report;
+  return report;
 }
 
 export async function getSybilReportCount(fid: bigint) {
-  const reportCount = await prisma.report.findMany({
-    where: {
-      sybilFid: { equals: fid },
-    },
-    distinct: ["reporterFid"],
-  });
-  return reportCount.length;
+  const result =
+    await prisma.$queryRaw`SELECT COUNT(DISTINCT reporter_fid) FROM reports as count WHERE sybil_fid = ${fid}`;
+  console.log({ result });
+  //@ts-ignore
+  return Number(result[0].count);
 }
 
 export async function getSybilReports(fid: bigint) {
