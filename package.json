@@ -7,7 +7,9 @@
     "deploy": "vercel",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:reset": "prisma migrate reset"
   },
   "dependencies": {
     "@airstack/frog": "^0.0.19",
