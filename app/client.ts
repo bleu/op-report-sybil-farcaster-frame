@@ -14,7 +14,6 @@ export async function createReport(data: CreateReportParams) {
 export async function getSybilReportCount(fid: bigint) {
   const result =
     await prisma.$queryRaw`SELECT COUNT(DISTINCT reporter_fid) FROM reports as count WHERE sybil_fid = ${fid}`;
-  console.log({ result });
   //@ts-ignore
   return Number(result[0].count);
 }
