@@ -17,10 +17,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ reports });
   } catch (error) {
-    console.error("Error processing check-sybil request:", error);
+    console.error("Error processing get-reports request:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
     );
   }
 }
+
+export const dynamic = "force-dynamic";

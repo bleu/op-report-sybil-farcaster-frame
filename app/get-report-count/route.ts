@@ -16,10 +16,12 @@ export async function GET(request: NextRequest) {
     const reportCount = await getSybilReportCount(BigInt(fid));
     return NextResponse.json({ reportCount });
   } catch (error) {
-    console.error("Error processing check-sybil request:", error);
+    console.error("Error processing get-report-count request:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
     );
   }
 }
+
+export const dynamic = "force-dynamic";
