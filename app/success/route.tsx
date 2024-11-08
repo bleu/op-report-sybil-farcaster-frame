@@ -7,8 +7,6 @@ export async function GET(request: Request) {
 
   const reportCount = searchParams.get("reportCount");
 
-  console.log({ reportCount });
-
   const imageData = await fetch(new URL("./success.png", import.meta.url)).then(
     (res) => res.arrayBuffer()
   );

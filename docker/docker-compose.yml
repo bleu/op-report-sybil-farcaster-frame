@@ -1,5 +1,5 @@
 services:
-  report-sybil-frame-container:
+  report-sybil-frame-pg:
     image: postgres:16
     container_name: report-sybil-frame-container
     environment:

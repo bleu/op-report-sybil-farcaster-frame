@@ -10,7 +10,11 @@ import { devtools } from "frog/dev";
 // import { neynar } from 'frog/hubs'
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
-import { type Report, createReport, getSybilReportCount } from "@/app/client";
+import {
+  type CreateReportParams,
+  createReport,
+  getSybilReportCount,
+} from "@/app/client";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -55,19 +59,17 @@ app.frame("/verify-captcha", async (c) => {
     }
 
     if (reporterFid && sybilFid) {
-      const reportLog: Report = {
+      const reportLog: CreateReportParams = {
         reporterFid: BigInt(reporterFid),
         sybilFid: BigInt(sybilFid),
-        castHash: c.frameData?.castId.hash,
-        messageHash: c.frameData?.messageHash,
+        castHash: c.frameData?.castId.hash || null,
+        messageHash: c.frameData?.messageHash || null,
         reportTimestamp: c.frameData?.timestamp
-          ? new Date(c.frameData.timestamp).toISOString()
-          : undefined,
-        network: c.frameData?.network,
+          ? new Date(c.frameData.timestamp)
+          : null,
+        network: c.frameData?.network || null,
       };
       await createReport(reportLog);
-      console.log("Validated report");
-      console.log({ reportLog });
     }
 
     const reportCount = sybilFid

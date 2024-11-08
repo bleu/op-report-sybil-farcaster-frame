@@ -1,17 +1,10 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Report } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export interface Report {
-  reporterFid: bigint;
-  sybilFid: bigint;
-  castHash: string | undefined;
-  messageHash: string | undefined;
-  network: number | undefined;
-  reportTimestamp: string | undefined;
-}
+export type CreateReportParams = Omit<Report, "id" | "createdAt">;
 
-export async function createReport(report: Report) {
+export async function createReport(report: CreateReportParams) {
   const _report = await prisma.report.create({
     data: report,
   });
