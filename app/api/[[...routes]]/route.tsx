@@ -3,7 +3,6 @@
 import {
   decryptCaptchaChallenge,
   generateEncryptedCaptchaText,
-  getAppUrl,
 } from "@/app/utils";
 import { Button, Frog, TextInput } from "frog";
 import { devtools } from "frog/dev";
@@ -17,6 +16,7 @@ import {
 } from "@/app/client";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+const BASE_URL = process.env.APP_URL || "http://localhost:3000";
 
 const app = new Frog({
   initialState: {
@@ -41,7 +41,7 @@ app.frame("/verify-captcha", async (c) => {
 
     if (!isValidated)
       return c.res({
-        image: `${getAppUrl()}/wrong-captcha.png`,
+        image: `${BASE_URL}/wrong-captcha.png`,
         intents: [<Button action="/">Try Again</Button>],
       });
 
@@ -77,12 +77,12 @@ app.frame("/verify-captcha", async (c) => {
       : "0";
 
     return c.res({
-      image: `${getAppUrl()}/success?reportCount=${reportCount}`,
+      image: `${BASE_URL}/success?reportCount=${reportCount}`,
       intents: [],
     });
   } catch (error) {
     return c.res({
-      image: `${getAppUrl()}/error.png`,
+      image: `${BASE_URL}/error.png`,
       intents: [<Button action="/">Try Again</Button>],
     });
   }
@@ -97,7 +97,7 @@ app.frame("/", (c) => {
   }
 
   return c.res({
-    image: `${getAppUrl()}/captcha?text=${
+    image: `${BASE_URL}/captcha?text=${
       //@ts-ignore
       c.deriveState().captchaText
     }`,
@@ -110,7 +110,7 @@ app.frame("/", (c) => {
 
 app.frame("/add-report-sybil", (c) => {
   return c.res({
-    image: `${getAppUrl()}/add-report-sybil.png`,
+    image: `${BASE_URL}/add-report-sybil.png`,
     intents: [
       <Button.AddCastAction action="/report">Add action</Button.AddCastAction>,
     ],

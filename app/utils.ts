@@ -88,7 +88,3 @@ export function decryptCaptchaChallenge(encryptedCaptcha: string): string {
 
   return result;
 }
-
-export function getAppUrl() {
-  return process.env.APP_URL || "http://localhost:3000";
-}
