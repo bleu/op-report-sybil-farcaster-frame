@@ -4,21 +4,19 @@ const prisma = new PrismaClient();
 
 export type CreateReportParams = Omit<Report, "id" | "createdAt">;
 
-export async function createReport(report: CreateReportParams) {
-  const _report = await prisma.report.create({
-    data: report,
+export async function createReport(data: CreateReportParams) {
+  const report = await prisma.report.create({
+    data,
   });
-  return _report;
+  return report;
 }
 
 export async function getSybilReportCount(fid: bigint) {
-  const reportCount = await prisma.report.findMany({
-    where: {
-      sybilFid: { equals: fid },
-    },
-    distinct: ["reporterFid"],
-  });
-  return reportCount.length;
+  const result =
+    await prisma.$queryRaw`SELECT COUNT(DISTINCT reporter_fid) FROM reports as count WHERE sybil_fid = ${fid}`;
+  console.log({ result });
+  //@ts-ignore
+  return Number(result[0].count);
 }
 
 export async function getSybilReports(fid: bigint) {
