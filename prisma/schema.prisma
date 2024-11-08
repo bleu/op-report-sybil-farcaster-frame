@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Report {
+  id              Int       @id @default(autoincrement())
+  reporterFid     BigInt    @map("reporter_fid")
+  sybilFid        BigInt    @map("sybil_fid")
+  castHash        String?   @map("cast_hash") @db.Char(42)
+  messageHash     String?   @map("message_hash") @db.Char(42)
+  network         Int?
+  reportTimestamp DateTime? @map("report_timestamp") @db.Timestamp(6)
+  createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([sybilFid])
+  @@index([reporterFid])
+  @@map("reports")
+}

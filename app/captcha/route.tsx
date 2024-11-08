@@ -14,12 +14,16 @@ export async function GET(request: Request) {
     ""
   );
 
+  const imageData = await fetch(new URL("./captcha.png", import.meta.url)).then(
+    (res) => res.arrayBuffer()
+  );
+
   return new ImageResponse(
     (
       <div
         style={{
           alignItems: "center",
-          background: "linear-gradient(to right, #432889, #17101F)",
+          background: "black",
           backgroundSize: "100% 100%",
           display: "flex",
           flexDirection: "column",
@@ -28,18 +32,30 @@ export async function GET(request: Request) {
           justifyContent: "center",
           textAlign: "center",
           width: "100%",
-          fontSize: 60,
           color: "white",
-          paddingLeft: 10,
-          paddingRight: 10,
         }}
       >
-        <p>Confirm you're human:</p>
+        <img
+          style={{ position: "absolute", top: "0", left: "0" }}
+          width="1200"
+          height="630"
+          alt=""
+          //@ts-ignore
+          src={imageData}
+        />
         <div
           style={{
             display: "flex",
             justifyContent: "center",
+            alignItems: "center",
             textAlign: "center",
+            position: "absolute",
+            top: "282px",
+            left: "280px",
+            width: "640px",
+            height: "160px",
+            color: "#2a2a2a",
+            paddingLeft: "20px",
           }}
         >
           {characters.map((char: string, index: number) => (
@@ -48,7 +64,7 @@ export async function GET(request: Request) {
               style={{
                 fontSize: generateRandomFontSize(),
                 transform: `rotate(${generateRandomAngle()}deg)`,
-                marginRight: "30px",
+                marginRight: "40px",
               }}
             >
               {char}

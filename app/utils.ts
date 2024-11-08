@@ -9,7 +9,7 @@ export function generateEncryptedCaptchaText() {
 }
 
 export function generateRandomFontSize() {
-  const sizes = [48, 56, 64];
+  const sizes = [64, 72, 80];
   return sizes[Math.floor(Math.random() * sizes.length)];
 }
 
@@ -24,7 +24,9 @@ export function encryptCaptchaChallenge(captchaToEncode: string): string {
 
   const key = process.env.CAPTCHA_ENCRYPTION_KEY;
   if (!key) {
-    console.log("Required env variable CAPTCHA_ENCRYPTION_KEY was not found!");
+    console.error(
+      "Required env variable CAPTCHA_ENCRYPTION_KEY was not found!"
+    );
     throw new Error(
       "Required env variable CAPTCHA_ENCRYPTION_KEY was not found!"
     );
@@ -57,7 +59,9 @@ export function decryptCaptchaChallenge(encryptedCaptcha: string): string {
 
   const key = process.env.CAPTCHA_ENCRYPTION_KEY;
   if (!key) {
-    console.log("Required env variable CAPTCHA_ENCRYPTION_KEY was not found!");
+    console.error(
+      "Required env variable CAPTCHA_ENCRYPTION_KEY was not found!"
+    );
     throw new Error(
       "Required env variable CAPTCHA_ENCRYPTION_KEY was not found!"
     );

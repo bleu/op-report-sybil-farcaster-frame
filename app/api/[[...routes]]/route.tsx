@@ -9,6 +9,14 @@ import { devtools } from "frog/dev";
 // import { neynar } from 'frog/hubs'
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
+import {
+  type CreateReportParams,
+  createReport,
+  getSybilReportCount,
+} from "@/app/client";
+
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+const BASE_URL = process.env.APP_URL || "http://localhost:3000";
 
 const app = new Frog({
   initialState: {
@@ -19,40 +27,65 @@ const app = new Frog({
 
   // Supply a Hub to enable frame verification.
   // hub: neynar({ apiKey: 'NEYNAR_FROG_FM' })
-  title: "Farcaster Sybil Report",
+  title: "Report Sybil",
 });
 
 app.frame("/verify-captcha", async (c) => {
-  const { inputText } = c ?? {};
-  const state = c.deriveState();
+  try {
+    const { inputText } = c ?? {};
+    const state = c.deriveState();
 
-  //@ts-ignore
-  const isValidated = inputText === decryptCaptchaChallenge(state.captchaText);
+    const isValidated =
+      //@ts-ignore
+      inputText === decryptCaptchaChallenge(state.captchaText);
 
-  const intents = isValidated ? [] : [<Button action="/">Try Again</Button>];
+    if (!isValidated)
+      return c.res({
+        image: `${BASE_URL}/wrong-captcha.png`,
+        intents: [<Button action="/">Try Again</Button>],
+      });
 
-  const reportLog = {
-    triggerFid: c.frameData?.fid,
-    casterFid: c.frameData?.castId.fid,
-    castHash: c.frameData?.castId.hash,
-    messageHash: c.frameData?.messageHash,
-    timestamp: c.frameData?.timestamp,
-    network: c.frameData?.network,
-  };
-  if (isValidated) {
-    console.log("Validated report");
-    console.log({ reportLog });
-  } else {
-    console.log("Not Valid report");
-    console.log({ reportLog });
+    const reporterFid = c.frameData?.fid;
+    const sybilFid = c.frameData?.castId.fid;
+
+    if (!reporterFid || !sybilFid) {
+      console.error("Missing necessary data (reporterFid or sybilfid)");
+      throw new Error("Missing necessary data (reporterFid or sybilfid)");
+    }
+
+    if (c.frameData?.castId.hash === ZERO_ADDRESS) {
+      console.error("There's not enough context to create a report");
+      throw new Error("There's not enough context to create a report");
+    }
+
+    if (reporterFid && sybilFid) {
+      const reportLog: CreateReportParams = {
+        reporterFid: BigInt(reporterFid),
+        sybilFid: BigInt(sybilFid),
+        castHash: c.frameData?.castId.hash || null,
+        messageHash: c.frameData?.messageHash || null,
+        reportTimestamp: c.frameData?.timestamp
+          ? new Date(c.frameData.timestamp)
+          : null,
+        network: c.frameData?.network || null,
+      };
+      await createReport(reportLog);
+    }
+
+    const reportCount = sybilFid
+      ? String(await getSybilReportCount(BigInt(sybilFid)))
+      : "0";
+
+    return c.res({
+      image: `${BASE_URL}/success?reportCount=${reportCount}`,
+      intents: [],
+    });
+  } catch (error) {
+    return c.res({
+      image: `${BASE_URL}/error.png`,
+      intents: [<Button action="/">Try Again</Button>],
+    });
   }
-
-  return c.res({
-    image: `${
-      process.env.APP_URL || "http://localhost:3000"
-    }/success?isValidated=${String(isValidated)}`,
-    intents,
-  });
 });
 
 app.frame("/", (c) => {
@@ -64,13 +97,21 @@ app.frame("/", (c) => {
   }
 
   return c.res({
-    image: `${process.env.APP_URL || "http://localhost:3000"}/captcha?text=${
+    image: `${BASE_URL}/captcha?text=${
       //@ts-ignore
       c.deriveState().captchaText
     }`,
     intents: [
       <TextInput placeholder="Your answer..." />,
       <Button action="/verify-captcha">Submit</Button>,
+    ],
+  });
+});
+
+app.frame("/add-report-sybil", (c) => {
+  return c.res({
+    image: `${BASE_URL}/add-report-sybil.png`,
+    intents: [
       <Button.AddCastAction action="/report">Add action</Button.AddCastAction>,
     ],
   });
@@ -79,13 +120,6 @@ app.frame("/", (c) => {
 app.castAction(
   "/report",
   (c) => {
-    // console.log({ req: c.req.json() });
-    // console.log({ actionData: c.actionData });
-    // console.log(
-    //   `Cast Action to ${JSON.stringify(c.actionData.castId)} from ${
-    //     c.actionData.fid
-    //   }`
-    // );
     return c.res({ type: "frame", path: "/" });
   },
   { name: "Report Sybil", icon: "megaphone" }
@@ -95,17 +129,3 @@ devtools(app, { serveStatic });
 
 export const GET = handle(app);
 export const POST = handle(app);
-
-// NOTE: That if you are using the devtools and enable Edge Runtime, you will need to copy the devtools
-// static assets to the public folder. You can do this by adding a script to your package.json:
-// ```json
-// {
-//   scripts: {
-//     "copy-static": "cp -r ./node_modules/frog/_lib/ui/.frog ./public/.frog"
-//   }
-// }
-// ```
-// Next, you'll want to set up the devtools to use the correct assets path:
-// ```ts
-// devtools(app, { assetsPath: '/.frog' })
-// ```
