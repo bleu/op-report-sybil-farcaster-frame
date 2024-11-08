@@ -58,3 +58,8 @@ ngrok http --url=<your-ngrok-url> http://localhost:3000
 5.2 Find a sybil suspicious cast (i.e. [this one](https://warpcast.com/xnoora/0xc13b7f59)) and use the Report Sybil cast-action
 
 5.3 Back in the database terminal, run again `SELECT * FROM reports;` to check if the new row was added
+
+5.4 Now check that the API is working by searching on your browser:
+
+- `<your-ngrok-url>/get-reports?fid=<fid-of-sybil-you-just-reported>`
+- `<your-ngrok-url>/get-report-count?fid=<fid-of-sybil-you-just-reported>`
