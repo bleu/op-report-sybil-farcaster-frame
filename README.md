@@ -2,11 +2,11 @@
 
 A Farcaster Cast Action that enables reporting of suspicious sybil accounts, creating an open database of potential sybil activity that can be used by researchers and developers to improve sybil detection algorithms.
 
-### 🔗 Adding the Cast-Action on Warpcast
+### 🔗 Adding the Cast Action on Warpcast
 
 You can help the community by reporting suspicious sybil activity! Here's how:
 
-1. **Quick Share**: Create a cast with this link to share the Report Sybil cast-action on Warpcast:
+1. **Quick Share**: Create a cast with this link to share Report Sybil on Warpcast:
 
 ```
 https://op-report-sybil-farcaster-frame.vercel.app/api/add-report-sybil
