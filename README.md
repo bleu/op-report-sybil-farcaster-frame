@@ -1,6 +1,24 @@
-### How to test
+# 📢 Report Sybil
 
-Requirements:
+A Farcaster Cast Action that enables reporting of suspicious sybil accounts, creating an open database of potential sybil activity that can be used by researchers and developers to improve sybil detection algorithms.
+
+### 🔗 Adding the Cast Action on Warpcast
+
+You can help the community by reporting suspicious sybil activity! Here's how:
+
+1. **Quick Share**: Create a cast with this link to share Report Sybil on Warpcast:
+
+```
+https://op-report-sybil-farcaster-frame.vercel.app/api/add-report-sybil
+```
+
+2. **Adding without sharing**: Alternatively, add the cast-action directly through Warpcast's developer tools using [this link](https://warpcast.com/~/developers/frames?url=https%3A%2F%2Fop-report-sybil-farcaster-frame.vercel.app%2Fapi%2Fadd-report-sybil)
+
+We encourage users to report suspicious sybil accounts to help maintain the integrity of the Farcaster ecosystem.
+
+### 🧪 How to test
+
+**Requirements**:
 
 - docker
 - docker-compose
@@ -63,3 +81,46 @@ ngrok http --url=<your-ngrok-url> http://localhost:3000
 
 - `<your-ngrok-url>/get-reports?fid=<fid-of-sybil-you-just-reported>`
 - `<your-ngrok-url>/get-report-count?fid=<fid-of-sybil-you-just-reported>`
+
+### 🔌 API Reference
+
+The API provides two GET endpoints:
+
+##### 1. Get Report Count
+
+```
+GET /get-report-count?fid=<fid>
+```
+
+Returns the unique reporters count for that fid:
+
+```
+{ reportCount }
+```
+
+##### 2. Get Reports
+
+```
+GET /get-reports?fid=<fid>
+```
+
+Returns all the reports pointing the fid as sybil:
+
+```
+{
+  reports: {
+   id,
+   reporterFid,
+   sybilFid,
+   castHash,
+   messageHash,
+   network,
+   reportTimestamp,
+   createdAt,
+  }[]
+}
+```
+
+### 📝 License
+
+This project is licensed under the GNU General Public License v3.0 - see the LICENSE file for details.
