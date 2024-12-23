@@ -117,6 +117,36 @@ app.frame("/add-report-sybil", (c) => {
   });
 });
 
+app.frame("/user-summary", async (c) => {
+  try {
+    // example user data
+    const urlParams = new URLSearchParams({
+      fid: String(1_000_000),
+      fname: "test-name",
+      sybilProbability: String((100 * 0.578).toFixed(1)) + "%",
+      sybilReports: String(254),
+      humanReports: String(3190298),
+    });
+
+    return c.res({
+      image: `${BASE_URL}/user-summary?${urlParams}`,
+      intents: [
+        <Button action="/" value="human">
+          Report human
+        </Button>,
+        <Button action="/" value="sybil">
+          Report sybil
+        </Button>,
+      ],
+    });
+  } catch (error) {
+    return c.res({
+      image: `${BASE_URL}/error.png`,
+      // intents: [<Button action="/">Try Again</Button>],
+    });
+  }
+});
+
 app.castAction(
   "/report",
   (c) => {
