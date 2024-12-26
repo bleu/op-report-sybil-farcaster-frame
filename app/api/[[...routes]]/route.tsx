@@ -15,6 +15,11 @@ import {
   getSybilReportCount,
 } from "@/app/client";
 
+interface StateType {
+  captchaText?: string;
+  reportType?: "human" | "sybil";
+}
+
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const BASE_URL = process.env.APP_URL || "http://localhost:3000";
 
@@ -33,10 +38,12 @@ const app = new Frog({
 app.frame("/verify-captcha", async (c) => {
   try {
     const { inputText } = c ?? {};
-    const state = c.deriveState();
+    const state = c.deriveState() as StateType;
+
+    if (!state?.reportType || !state?.captchaText)
+      throw new Error("Missing required variabled to verify captcha");
 
     const isValidated =
-      //@ts-ignore
       inputText === decryptCaptchaChallenge(state.captchaText);
 
     if (!isValidated)
@@ -68,6 +75,7 @@ app.frame("/verify-captcha", async (c) => {
           ? new Date(c.frameData.timestamp)
           : null,
         network: c.frameData?.network || null,
+        reportedAsSybil: state.reportType === "sybil",
       };
       await createReport(reportLog);
     }
@@ -88,19 +96,20 @@ app.frame("/verify-captcha", async (c) => {
   }
 });
 
-app.frame("/", (c) => {
+app.frame("/report", (c) => {
+  const { buttonValue, deriveState } = c as {
+    buttonValue: "human" | "sybil";
+    deriveState: (updater?: (previousState: StateType) => void) => StateType;
+  };
   if (c.status === "response") {
-    c.deriveState((previousState) => {
-      //@ts-ignore
+    deriveState((previousState) => {
       previousState.captchaText = generateEncryptedCaptchaText();
+      previousState.reportType = buttonValue;
     });
   }
 
   return c.res({
-    image: `${BASE_URL}/captcha?text=${
-      //@ts-ignore
-      c.deriveState().captchaText
-    }`,
+    image: `${BASE_URL}/captcha?text=${deriveState().captchaText}`,
     intents: [
       <TextInput placeholder="Your answer..." />,
       <Button action="/verify-captcha">Submit</Button>,
@@ -117,7 +126,7 @@ app.frame("/add-report-sybil", (c) => {
   });
 });
 
-app.frame("/user-summary", async (c) => {
+app.frame("/", async (c) => {
   try {
     // example user data
     const urlParams = new URLSearchParams({
@@ -131,10 +140,10 @@ app.frame("/user-summary", async (c) => {
     return c.res({
       image: `${BASE_URL}/user-summary?${urlParams}`,
       intents: [
-        <Button action="/" value="human">
+        <Button action="/report" value="human">
           Report human
         </Button>,
-        <Button action="/" value="sybil">
+        <Button action="/report" value="sybil">
           Report sybil
         </Button>,
       ],
