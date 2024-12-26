@@ -111,7 +111,7 @@ Returns all the reports pointing the fid as sybil:
   reports: {
    id,
    reporterFid,
-   sybilFid,
+   targetFid,
    castHash,
    messageHash,
    network,

@@ -21,7 +21,7 @@ export async function getSybilReportCount(fid: bigint) {
 export async function getSybilReports(fid: bigint) {
   const reports = await prisma.report.findMany({
     where: {
-      sybilFid: { equals: fid },
+      targetFid: { equals: fid },
     },
   });
 
@@ -29,7 +29,7 @@ export async function getSybilReports(fid: bigint) {
     return {
       ...report,
       reporterFid: report.reporterFid.toString(),
-      sybilFid: report.sybilFid.toString(),
+      targetFid: report.targetFid.toString(),
     };
   });
 

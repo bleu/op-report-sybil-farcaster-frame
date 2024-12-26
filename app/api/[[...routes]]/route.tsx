@@ -46,11 +46,11 @@ app.frame("/verify-captcha", async (c) => {
       });
 
     const reporterFid = c.frameData?.fid;
-    const sybilFid = c.frameData?.castId.fid;
+    const targetFid = c.frameData?.castId.fid;
 
-    if (!reporterFid || !sybilFid) {
-      console.error("Missing necessary data (reporterFid or sybilfid)");
-      throw new Error("Missing necessary data (reporterFid or sybilfid)");
+    if (!reporterFid || !targetFid) {
+      console.error("Missing necessary data (reporterFid or targetFid)");
+      throw new Error("Missing necessary data (reporterFid or targetFid)");
     }
 
     if (c.frameData?.castId.hash === ZERO_ADDRESS) {
@@ -58,10 +58,10 @@ app.frame("/verify-captcha", async (c) => {
       throw new Error("There's not enough context to create a report");
     }
 
-    if (reporterFid && sybilFid) {
+    if (reporterFid && targetFid) {
       const reportLog: CreateReportParams = {
         reporterFid: BigInt(reporterFid),
-        sybilFid: BigInt(sybilFid),
+        targetFid: BigInt(targetFid),
         castHash: c.frameData?.castId.hash || null,
         messageHash: c.frameData?.messageHash || null,
         reportTimestamp: c.frameData?.timestamp
@@ -72,8 +72,8 @@ app.frame("/verify-captcha", async (c) => {
       await createReport(reportLog);
     }
 
-    const reportCount = sybilFid
-      ? String(await getSybilReportCount(BigInt(sybilFid)))
+    const reportCount = targetFid
+      ? String(await getSybilReportCount(BigInt(targetFid)))
       : "0";
 
     return c.res({
