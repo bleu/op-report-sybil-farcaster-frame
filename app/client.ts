@@ -1,9 +1,5 @@
 import { PrismaClient, Report } from "@prisma/client";
-import {
-  JsonValue,
-  JsonObject,
-  JsonArray,
-} from "@prisma/client/runtime/library";
+import { JsonObject, JsonArray } from "@prisma/client/runtime/library";
 
 const prisma = new PrismaClient();
 
