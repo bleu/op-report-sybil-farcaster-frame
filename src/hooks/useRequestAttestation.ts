@@ -36,12 +36,7 @@ export async function verifyReportSybilAttestation({
   const eas = new EAS(EAS_OP_CONTRACT_ADDRESS, { signer }); // Sepolia address
   const easOffchain = await eas.getOffchain();
   const schemaEncoder = new SchemaEncoder(REPORT_SYBIL_SCHEMA_STRING);
-  console.log({ signedAttestation });
-  console.log({
-    data: schemaEncoder.decodeData(signedAttestation.message.data),
-  });
   try {
-    console.log({ attester });
     const isValid = easOffchain.verifyOffchainAttestationSignature(
       attester,
       signedAttestation
@@ -52,16 +47,9 @@ export async function verifyReportSybilAttestation({
       const schemaEncoder = new SchemaEncoder(
         "uint256 reporterFid, uint256 targetFid, bool reportedAsSybil"
       );
-      console.log("here...");
       const decodedData = schemaEncoder.decodeData(
         signedAttestation.message.data
       );
-
-      console.log("Decoded Sybil Report:", {
-        reporterFid: decodedData[0].value.value, // Convert BigInt to string
-        targetFid: decodedData[1].value.value,
-        reportedAsSybil: decodedData[2].value.value,
-      });
     }
 
     return isValid;
@@ -120,8 +108,6 @@ function splitSignature(signature: `0x${string}`) {
   return { r, s, v };
 }
 
-console.log({ schemaUID });
-
 export function useRequestAttestation({
   chainId,
   attester,
@@ -151,9 +137,7 @@ export function useRequestAttestation({
         { name: "targetFid", value: targetFid, type: "uint256" },
         { name: "reportedAsSybil", value: reportedAsSybil, type: "bool" },
       ]);
-      console.log("here1");
       if (!attester || !signer) return;
-      console.log("here2");
 
       const domain = {
         name: "EAS Attestation",
@@ -161,10 +145,8 @@ export function useRequestAttestation({
         chainId,
         verifyingContract: EAS_OP_CONTRACT_ADDRESS as `0x${string}`,
       };
-      console.log("here3");
 
       const primaryType = "Attest";
-      console.log("here3");
 
       const types = {
         Attest: [
@@ -206,7 +188,6 @@ export function useRequestAttestation({
           },
         ],
       } as const;
-      console.log("here5");
 
       const message = {
         version: 2,
@@ -221,8 +202,6 @@ export function useRequestAttestation({
         salt: "0x0000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`,
       };
 
-      console.log({ message });
-
       setAttestationData({
         domain: { ...domain, chainId: BigInt(domain.chainId) },
         primaryType,
@@ -232,7 +211,6 @@ export function useRequestAttestation({
         version: 2,
       });
 
-      console.log("signing typed data...");
       signTypedData({
         domain,
         primaryType,
@@ -267,13 +245,14 @@ export function useRequestAttestation({
         console.error("There's no signer");
         return;
       }
-
+      console.log("verifying if signed attestation is valid...");
+      console.log({ newAttestationData });
       verifyReportSybilAttestation({
         attester: attester as `0x${string}`,
         signer,
         signedAttestation: newAttestationData,
       }).then((response) => {
-        console.log({ isValid: response });
+        console.log("is signed attestation valid? ->", response);
       });
     }
   }, [signature, attester, signer]);
