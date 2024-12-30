@@ -9,7 +9,6 @@ import { useAccount, useDisconnect, useConnect, useChainId } from "wagmi";
 
 import { config } from "~/components/providers/WagmiProvider";
 import { Button } from "~/components/ui/Button";
-import { BaseError, UserRejectedRequestError } from "viem";
 import { useRequestAttestation } from "~/hooks/useRequestAttestation";
 
 export default function Frontend(
@@ -95,10 +94,6 @@ export default function Frontend(
     }
   }, [isSDKLoaded]);
 
-  const close = useCallback(() => {
-    sdk.actions.close();
-  }, []);
-
   const addFrame = useCallback(async () => {
     try {
       setNotificationDetails(null);
@@ -126,6 +121,17 @@ export default function Frontend(
     return <div>Loading...</div>;
   }
 
+  const targetData = {
+    fid: 807252,
+    fname: "yvezera",
+    displayName: "yves",
+    imageUrl:
+      "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/ebee2fa0-d63e-4060-ec0e-d2b30abae800/rectcrop3",
+    humanReports: 1256763,
+    sybilReports: 1876241,
+    sybilProbability: 0.5787,
+  };
+
   return (
     <div
       style={{
@@ -135,66 +141,102 @@ export default function Frontend(
         paddingRight: context?.client.safeAreaInsets?.right ?? 0,
       }}
     >
-      <div className="w-[300px] mx-auto py-2 px-2">
-        <div className="w-full h-40 flex items-center justify-center rounded-lg bg-slate-300 text-black">
-          <span>User info</span>
-        </div>
-        <div className="flex items-center justify-center">
-          <button
-            className="w-44 h-10 flex items-center justify-center rounded-lg bg-red-700 hover:bg-red-600 text-white my-2 mx-1 disabled:bg-gray-500"
-            onClick={() => {
-              requestAttestation(BigInt(1000000), BigInt(1000000), false);
-            }}
-            disabled={!isConnected}
-          >
-            Report Human
-          </button>
-          <button
-            className="w-44 h-10 flex items-center justify-center rounded-lg bg-red-700 hover:bg-red-600 text-white my-2 mx-1 disabled:bg-gray-500"
-            disabled={!isConnected}
-          >
-            Report Sybil
-          </button>
-        </div>
+      <div className="w-[300px] h-[540px] flex flex-col justify-between items-center mt-16 mx-auto py-2 px-2 gap-4">
+        <div className="w-full bg-slate-100 rounded-lg p-4 shadow-md">
+          <div className="flex items-center mb-4">
+            <div className="w-16 h-16 rounded-full overflow-hidden mr-4">
+              <img
+                src={targetData.imageUrl}
+                alt={targetData.displayName}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">
+                {targetData.displayName}
+              </h2>
+              <p className="text-sm text-gray-600">@{targetData.fname}</p>
+              <p className="text-xs text-gray-500">FID: {targetData.fid}</p>
+            </div>
+          </div>
 
-        <button
-          className="w-full h-10 flex items-center justify-center rounded-lg bg-red-700 hover:bg-red-600 disabled:bg-gray-500"
-          onClick={addFrame}
-          disabled={!isConnected}
-        >
-          Add frame to client
-        </button>
-
-        <div>
-          <div className="my-2">
-            <Button
-              className="bg-red-700 hover:bg-red-600"
-              onClick={() =>
-                isConnected
-                  ? disconnect()
-                  : connect({ connector: config.connectors[0] })
-              }
-            >
-              {isConnected ? "Disconnect" : "Connect"}
-            </Button>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Human Reports</span>
+              <span className="text-sm font-medium text-gray-900">
+                {targetData.humanReports.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Sybil Reports</span>
+              <span className="text-sm font-medium text-gray-900">
+                {targetData.sybilReports.toLocaleString()}
+              </span>
+            </div>
+            <div className="mt-2 pt-2 border-t border-gray-200">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Sybil Probability</span>
+                <span className="text-sm font-medium text-gray-900">
+                  {(targetData.sybilProbability * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div className="w-full h-2 bg-gray-200 rounded-full mt-1">
+                <div
+                  className="h-full bg-red-600 rounded-full"
+                  style={{ width: `${targetData.sybilProbability * 100}%` }}
+                ></div>
+              </div>
+            </div>
           </div>
         </div>
+        <Button
+          className="w-full bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
+          onClick={() => {
+            requestAttestation(
+              BigInt(targetData.fid),
+              BigInt(targetData.fid),
+              false
+            );
+          }}
+          disabled={!isConnected}
+        >
+          Report Human
+        </Button>
+        <Button
+          className="w-full bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
+          disabled={!isConnected}
+          onClick={() => {
+            requestAttestation(
+              BigInt(targetData.fid),
+              BigInt(targetData.fid),
+              true
+            );
+          }}
+        >
+          Report Sybil
+        </Button>
+        <div className="w-full flex flex-col">
+          <Button
+            className="w-full bg-red-700 hover:bg-red-600 disabled:bg-gray-500"
+            onClick={addFrame}
+            disabled={!isConnected}
+          >
+            Add frame to client
+          </Button>
+          <span>{addFrameResult}</span>
+        </div>
+
+        <Button
+          className="w-full bg-red-700 hover:bg-red-600"
+          onClick={() =>
+            isConnected
+              ? disconnect()
+              : connect({ connector: config.connectors[0] })
+          }
+        >
+          {isConnected ? "Disconnect wallet" : "Connect wallet"}
+        </Button>
       </div>
     </div>
   );
 }
-
-const renderError = (error: Error | null) => {
-  if (!error) return null;
-  if (error instanceof BaseError) {
-    const isUserRejection = error.walk(
-      (e) => e instanceof UserRejectedRequestError
-    );
-
-    if (isUserRejection) {
-      return <div className="text-red-500 text-xs mt-1">Rejected by user.</div>;
-    }
-  }
-
-  return <div className="text-red-500 text-xs mt-1">{error.message}</div>;
-};
