@@ -19,9 +19,10 @@ export async function GET() {
 
   const header =
     "eyJmaWQiOjkzMjIxNCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweEZFOEY1RkM0OTMyRmFkYzc2NGRGOURENTdERkE4YzlFY0UyQzZCNzQifQ";
-  const payload = "eyJkb21haW4iOiJqZWFuLm5ncm9rLmFwcCJ9";
+  const payload =
+    "eyJkb21haW4iOiJvcC1yZXBvcnQtc3liaWwtZmFyY2FzdGVyLWZyYW1lLnZlcmNlbC5hcHAifQ";
   const signature =
-    "MHhkYWNhODJjMzJmYTBjZmI3OGI3ZDEyYWE5N2JjMTk2MjFlZTljOGZiNjVmZTcyNWVlOWYxMjA2NzVlOTFiMTk4Mjg1MmFmYmE2M2JlNGU3NDk1OGUyYTkxNTk2OTdkNTQ0NDhjZjBhOTgzMjc5MTZmNGVlOGRkYTcyY2ZlMjY4ZTFj";
+    "MHg5Y2Y2NDM2MmU0MTAzNTgxMjZlOWU2OTEwMWMwYWU3NDMwZTAyZmE0ZjE0MDAwYmQ4ZGQyNDUwYTVkZjI1Y2JkMDExNGVmZmQ4YzQ5MTRhYmY4MjFjMTE4MWFmYTRhYTc4MDgwMWFiNTQzMzM0ZjdjMTE2ZGUwNWNkZGFlYmNhYzFj";
 
   const config = {
     // accountAssociation: `${header}.${payload}.${signature}`,

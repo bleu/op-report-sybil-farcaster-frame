@@ -3,7 +3,8 @@
 import { useEffect } from "react";
 
 async function testCreateOffChainAttestation() {
-  const appUrl = process.env.NEXT_PUBLIC_URL;
+  // const appUrl = process.env.NEXT_PUBLIC_URL;
+  const appUrl = "https://op-report-sybil-farcaster-frame.vercel.app";
 
   const domainManifest = btoa(
     JSON.stringify({ domain: appUrl?.split("//").at(-1) })
