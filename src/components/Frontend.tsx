@@ -110,7 +110,9 @@ export default function Frontend(
             : "Added, got no notification details"
         );
       } else {
-        setAddFrameResult(`Not added: ${result.reason}`);
+        setAddFrameResult(
+          `Not added: ${result.reason} | ${JSON.stringify(result)}`
+        );
       }
     } catch (error) {
       setAddFrameResult(`Error: ${error}`);
@@ -131,7 +133,6 @@ export default function Frontend(
     sybilReports: 1876241,
     sybilProbability: 0.5787,
   };
-
   return (
     <div
       style={{
