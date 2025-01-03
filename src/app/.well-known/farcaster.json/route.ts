@@ -17,20 +17,12 @@ export async function GET() {
   // console.log({header, payload});
   // signature is obtained signing `${header}.${payload}`
 
-  // vercel
   const header =
-    "IntcImZpZFwiOjkzMjIxNCxcInR5cGVcIjpcImN1c3RvZHlcIixcImtleVwiOlwiMHhGRThGNUZDNDkzMkZhZGM3NjRkRjlERDU3REZBOGM5RWNFMkM2Qjc0XCJ9Ig";
+    "eyJmaWQiOjkzMjIxNCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweEZFOEY1RkM0OTMyRmFkYzc2NGRGOURENTdERkE4YzlFY0UyQzZCNzQifQ";
   const payload =
-    "IntcImRvbWFpblwiOlwib3AtcmVwb3J0LXN5YmlsLWZhcmNhc3Rlci1mcmFtZS52ZXJjZWwuYXBwXCJ9Ig";
+    "eyJkb21haW4iOiJvcC1yZXBvcnQtc3liaWwtZmFyY2FzdGVyLWZyYW1lLnZlcmNlbC5hcHAifQ";
   const signature =
-    "MHgzMmE5MWM3ZmUzMGEyOTQwYzUzZTMwNGRhYjUwMzMzMjU0MjFlN2I2NWMzMjg0ZTAzYTMxNWQwMzAzZTIzZGY2M2FiYWY5MTBiMDkxN2M2ZjI4Yzk0ZjgxMzVjODIzODEzYWVhNDYwZmEyNjA0MTMxY2U0NDdlYmQyNGI5MmFiMTFi";
-
-  // ngrok
-  // const header =
-  //   "IntcImZpZFwiOjkzMjIxNCxcInR5cGVcIjpcImN1c3RvZHlcIixcImtleVwiOlwiMHhGRThGNUZDNDkzMkZhZGM3NjRkRjlERDU3REZBOGM5RWNFMkM2Qjc0XCJ9Ig";
-  // const payload = "IntcImRvbWFpblwiOlwiamVhbi5uZ3Jvay5hcHBcIn0i";
-  // const signature =
-  //   "MHgwNmM4YzVjZmJhNWJlMjVhNDFhZmNiNmVmZjM5YzdhYTE5YjFhMjBjMTAyZWE1ZWIzNzVlYWVlYjIyZWM0ZThmMjQ4YWUwMGFkZjc0ODBlYmY1MTQxYjljZWZmNzU4NjliMzA3MDdlODM0MWYwYWQxNWU1NjRiMDRkNmU4MTQwZDFi";
+    "MHg5Y2Y2NDM2MmU0MTAzNTgxMjZlOWU2OTEwMWMwYWU3NDMwZTAyZmE0ZjE0MDAwYmQ4ZGQyNDUwYTVkZjI1Y2JkMDExNGVmZmQ4YzQ5MTRhYmY4MjFjMTE4MWFmYTRhYTc4MDgwMWFiNTQzMzM0ZjdjMTE2ZGUwNWNkZGFlYmNhYzFj";
 
   const config = {
     // accountAssociation: `${header}.${payload}.${signature}`,
