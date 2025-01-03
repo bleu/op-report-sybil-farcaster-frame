@@ -17,14 +17,14 @@ export async function createReport(data: CreateReportParams) {
 
 export async function getSybilReportCount(fid: bigint) {
   const result =
-    await prisma.$queryRaw`SELECT COUNT(DISTINCT reporter_fid) FROM reports as count WHERE sybil_fid = ${fid} AND reported_as_sybil = true`;
+    await prisma.$queryRaw`SELECT COUNT(DISTINCT reporter_fid) FROM reports as count WHERE target_fid = ${fid} AND reported_as_sybil = true`;
   //@ts-ignore
   return Number(result[0].count);
 }
 
 export async function getHumanReportCount(fid: bigint) {
   const result =
-    await prisma.$queryRaw`SELECT COUNT(DISTINCT reporter_fid) FROM reports as count WHERE sybil_fid = ${fid} AND reported_as_sybil = false`;
+    await prisma.$queryRaw`SELECT COUNT(DISTINCT reporter_fid) FROM reports as count WHERE target_fid = ${fid} AND reported_as_sybil = false`;
   //@ts-ignore
   return Number(result[0].count);
 }
