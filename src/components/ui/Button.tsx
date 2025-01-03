@@ -11,7 +11,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`w-full max-w-xs mx-auto block bg-[#7C65C1] text-white py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-default hover:bg-[#6952A3] ${className}`}
+      className={`w-full mx-auto bg-[#7C65C1] text-white py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-default hover:bg-[#6952A3] ${className}`}
       {...props}
     >
       {isLoading ? (

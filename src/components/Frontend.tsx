@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import sdk, {
   FrameNotificationDetails,
   type FrameContext,
@@ -11,6 +11,8 @@ import { config } from "~/components/providers/WagmiProvider";
 import { Button } from "~/components/ui/Button";
 import { useRequestAttestation } from "~/hooks/useRequestAttestation";
 import { useUserData } from "~/hooks/useUserData";
+
+import ReCAPTCHA from "react-google-recaptcha";
 
 export default function Frontend(
   { title }: { title?: string } = { title: "Check Sybil" }
@@ -45,10 +47,13 @@ export default function Frontend(
     data: targetData,
     error: targetError,
     isLoading: targetIsLoading,
-  } = useUserData(932214);
+  } = useUserData(807252);
 
   const { disconnect } = useDisconnect();
   const { connect } = useConnect();
+
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -126,6 +131,32 @@ export default function Frontend(
     }
   }, []);
 
+  async function handleCaptchaSubmission(token: string | null) {
+    try {
+      if (token) {
+        await fetch("/api/recaptcha", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token }),
+        });
+        setIsVerified(true);
+      }
+    } catch (e) {
+      setIsVerified(false);
+    }
+  }
+
+  const handleChange = (token: string | null) => {
+    handleCaptchaSubmission(token);
+  };
+
+  function handleExpired() {
+    setIsVerified(false);
+  }
+
   if (!isSDKLoaded || targetIsLoading) {
     return <div>Loading...</div>;
   }
@@ -139,7 +170,7 @@ export default function Frontend(
         paddingRight: context?.client.safeAreaInsets?.right ?? 0,
       }}
     >
-      <div className="w-[300px] h-[480px] flex flex-col justify-between items-center mt-16 mx-auto py-2 px-2 gap-4">
+      <div className="w-[320px] h-[480px] flex flex-col justify-between items-center mt-16 mx-auto py-2 px-2 gap-4">
         {targetData && (
           <div className="w-full bg-slate-100 rounded-lg p-4 shadow-md">
             <div className="flex items-center mb-4">
@@ -197,24 +228,32 @@ export default function Frontend(
             </div>
           </div>
         )}
-        <Button
-          className="w-full bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
-          onClick={() => {
-            requestAttestation(BigInt(807252), BigInt(807252), false);
-          }}
-          disabled={!isConnected}
-        >
-          Report Human
-        </Button>
-        <Button
-          className="w-full bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
-          disabled={!isConnected}
-          onClick={() => {
-            requestAttestation(BigInt(807252), BigInt(807252), true);
-          }}
-        >
-          Report Sybil
-        </Button>
+        <ReCAPTCHA
+          sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+          ref={recaptchaRef}
+          onChange={handleChange}
+          onExpired={handleExpired}
+        />
+        <div className="grid grid-cols-2 gap-4 w-full">
+          <Button
+            className="w-full h-12 flex justify-center items-center bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
+            onClick={() => {
+              requestAttestation(BigInt(807252), BigInt(807252), false);
+            }}
+            disabled={!isConnected || !isVerified}
+          >
+            Report Human
+          </Button>
+          <Button
+            className="w-full h-12 bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
+            onClick={() => {
+              requestAttestation(BigInt(807252), BigInt(807252), true);
+            }}
+            disabled={!isConnected || !isVerified}
+          >
+            Report Sybil
+          </Button>
+        </div>
         <div className="w-full flex flex-col">
           <Button
             className="w-full bg-red-700 hover:bg-red-600 disabled:bg-gray-500"
