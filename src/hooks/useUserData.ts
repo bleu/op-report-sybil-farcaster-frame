@@ -36,7 +36,6 @@ async function fetchFarcasterUserData(fid: number): Promise<{
     }
 
     const data = await response.json();
-    console.log({ data });
     return data.data as {
       fid: number;
       fname: string;
@@ -90,7 +89,6 @@ async function fetchSybilProbability(fid: number): Promise<{
     const data = await response.json();
     return data.numeric_output;
   } catch (e) {
-    console.log("opa");
     return { sybilProbability: undefined };
   }
 }

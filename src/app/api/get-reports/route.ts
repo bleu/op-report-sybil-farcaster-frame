@@ -23,8 +23,6 @@ export async function GET(request: Request) {
     const humanReports = await getHumanReportCount(BigInt(parsedFid));
     const sybilReports = await getSybilReportCount(BigInt(parsedFid));
 
-    console.log({ humanReports, sybilReports });
-
     return Response.json({
       success: true,
       data: {

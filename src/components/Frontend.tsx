@@ -1,15 +1,12 @@
 "use client";
 
 import { useEffect, useCallback, useState, useRef } from "react";
-import sdk, {
-  FrameNotificationDetails,
-  type FrameContext,
-} from "@farcaster/frame-sdk";
+import sdk, { type FrameContext } from "@farcaster/frame-sdk";
 import { useAccount, useDisconnect, useConnect, useChainId } from "wagmi";
 
 import { config } from "~/components/providers/WagmiProvider";
 import { Button } from "~/components/ui/Button";
-import { useRequestAttestation } from "~/hooks/useRequestAttestation";
+import { useReportSybil } from "~/hooks/useReportSybil";
 import { useUserData } from "~/hooks/useUserData";
 
 import ReCAPTCHA from "react-google-recaptcha";
@@ -21,33 +18,24 @@ export default function Frontend(
   const [context, setContext] = useState<FrameContext>();
 
   const [added, setAdded] = useState(false);
-  const [notificationDetails, setNotificationDetails] =
-    useState<FrameNotificationDetails | null>(null);
-
-  const [lastEvent, setLastEvent] = useState("");
 
   const [addFrameResult, setAddFrameResult] = useState("");
 
-  useEffect(() => {
-    setNotificationDetails(context?.client.notificationDetails ?? null);
-  }, [context]);
-
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-
-  const {
-    attestationData: requestAttestationData,
-    requestAttestation,
-    error: RequestAttestationError,
-    isError: isRequestAttestationError,
-    isPending: isRequestAttestationPending,
-  } = useRequestAttestation({ chainId, attester: address });
 
   const {
     data: targetData,
     error: targetError,
     isLoading: targetIsLoading,
   } = useUserData(807252);
+
+  const { success, reportSybil, attestationError, createReportError } =
+    useReportSybil({
+      chainId,
+      attester: address,
+      sybilProbability: targetData?.sybilProbability,
+    });
 
   const { disconnect } = useDisconnect();
   const { connect } = useConnect();
@@ -62,33 +50,11 @@ export default function Frontend(
       setAdded(context.client.added);
 
       sdk.on("frameAdded", ({ notificationDetails }) => {
-        setLastEvent(
-          `frameAdded${!!notificationDetails ? ", notifications enabled" : ""}`
-        );
-
         setAdded(true);
-        if (notificationDetails) {
-          setNotificationDetails(notificationDetails);
-        }
-      });
-
-      sdk.on("frameAddRejected", ({ reason }) => {
-        setLastEvent(`frameAddRejected, reason ${reason}`);
       });
 
       sdk.on("frameRemoved", () => {
-        setLastEvent("frameRemoved");
         setAdded(false);
-        setNotificationDetails(null);
-      });
-
-      sdk.on("notificationsEnabled", ({ notificationDetails }) => {
-        setLastEvent("notificationsEnabled");
-        setNotificationDetails(notificationDetails);
-      });
-      sdk.on("notificationsDisabled", () => {
-        setLastEvent("notificationsDisabled");
-        setNotificationDetails(null);
       });
 
       sdk.on("primaryButtonClicked", () => {
@@ -108,14 +74,9 @@ export default function Frontend(
 
   const addFrame = useCallback(async () => {
     try {
-      setNotificationDetails(null);
-
       const result = await sdk.actions.addFrame();
 
       if (result.added) {
-        if (result.notificationDetails) {
-          setNotificationDetails(result.notificationDetails);
-        }
         setAddFrameResult(
           result.notificationDetails
             ? `Added, got notificaton token ${result.notificationDetails.token} and url ${result.notificationDetails.url}`
@@ -228,53 +189,98 @@ export default function Frontend(
             </div>
           </div>
         )}
-        <ReCAPTCHA
-          sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
-          ref={recaptchaRef}
-          onChange={handleChange}
-          onExpired={handleExpired}
-        />
-        <div className="grid grid-cols-2 gap-4 w-full">
-          <Button
-            className="w-full h-12 flex justify-center items-center bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
-            onClick={() => {
-              requestAttestation(BigInt(807252), BigInt(807252), false);
-            }}
-            disabled={!isConnected || !isVerified}
-          >
-            Report Human
-          </Button>
-          <Button
-            className="w-full h-12 bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
-            onClick={() => {
-              requestAttestation(BigInt(807252), BigInt(807252), true);
-            }}
-            disabled={!isConnected || !isVerified}
-          >
-            Report Sybil
-          </Button>
-        </div>
-        <div className="w-full flex flex-col">
-          <Button
-            className="w-full bg-red-700 hover:bg-red-600 disabled:bg-gray-500"
-            onClick={addFrame}
-            disabled={!isConnected}
-          >
-            Add frame to client
-          </Button>
-          <span>{addFrameResult}</span>
-        </div>
+        {success === undefined && (
+          <>
+            <ReCAPTCHA
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+              ref={recaptchaRef}
+              onChange={handleChange}
+              onExpired={handleExpired}
+            />
+            <div className="grid grid-cols-2 gap-4 w-full">
+              <Button
+                className="w-full h-12 flex justify-center items-center bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
+                onClick={() => {
+                  reportSybil({
+                    reporterFid: BigInt(807252),
+                    targetFid: BigInt(807252),
+                    reportedAsSybil: false,
+                  });
+                }}
+                disabled={!isConnected || !isVerified}
+              >
+                Report Human
+              </Button>
+              <Button
+                className="w-full h-12 bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
+                onClick={() => {
+                  reportSybil({
+                    reporterFid: BigInt(807252),
+                    targetFid: BigInt(807252),
+                    reportedAsSybil: true,
+                  });
+                }}
+                disabled={!isConnected || !isVerified}
+              >
+                Report Sybil
+              </Button>
+            </div>
+            <div className="w-full flex flex-col">
+              <Button
+                className="w-full bg-red-700 hover:bg-red-600 disabled:bg-gray-500"
+                onClick={addFrame}
+                disabled={added}
+              >
+                Add frame to client
+              </Button>
+              <span>{addFrameResult}</span>
+            </div>
 
-        <Button
-          className="w-full bg-red-700 hover:bg-red-600"
-          onClick={() =>
-            isConnected
-              ? disconnect()
-              : connect({ connector: config.connectors[0] })
-          }
-        >
-          {isConnected ? "Disconnect wallet" : "Connect wallet"}
-        </Button>
+            <Button
+              className="w-full bg-red-700 hover:bg-red-600"
+              onClick={() =>
+                isConnected
+                  ? disconnect()
+                  : connect({ connector: config.connectors[0] })
+              }
+            >
+              {isConnected ? "Disconnect wallet" : "Connect wallet"}
+            </Button>
+          </>
+        )}
+        {success === true && (
+          <>
+            <div className="w-full h-full flex flex-col gap-4 items-center justify-start">
+              <span>Thanks for your report!</span>
+              <Button
+                className="w-full h-12 bg-red-700 hover:bg-red-600 text-white"
+                onClick={() => {
+                  sdk.actions.close();
+                }}
+              >
+                Close frame
+              </Button>
+            </div>
+          </>
+        )}
+        {success === false && (
+          <>
+            <div className="w-full h-full flex flex-col gap-4 items-center justify-start">
+              <span>Sorry, an unexpected error occurred!</span>
+              <Button
+                className="w-full h-12 bg-red-700 hover:bg-red-600 text-white"
+                onClick={() => {
+                  sdk.actions.close();
+                }}
+              >
+                Close frame
+              </Button>
+            </div>
+          </>
+        )}
+
+        {attestationError && JSON.stringify(attestationError)}
+        {createReportError && JSON.stringify(createReportError)}
       </div>
     </div>
   );

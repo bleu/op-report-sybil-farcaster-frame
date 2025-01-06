@@ -58,7 +58,6 @@ export async function GET(request: Request) {
     }
 
     const data = (await response.json()) as WarpcastResponse;
-    console.log({ data });
     const fname = data.result.user.username ?? "";
     const displayName = data.result.user.displayName ?? "";
     const imageUrl = data.result.user.pfp
