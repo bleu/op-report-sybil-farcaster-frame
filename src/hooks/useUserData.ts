@@ -21,14 +21,16 @@ interface FetchError extends Error {
   status?: number;
 }
 
-async function fetchFarcasterUserData(fid: number): Promise<{
+async function fetchFarcasterUserData(identifier: number | string): Promise<{
   fid: number;
   fname: string;
   displayName: string;
   imageUrl: string;
 } | null> {
   try {
-    const response = await fetch(`/api/get-farcaster-user-data?fid=${fid}`);
+    const response = await fetch(
+      `/api/get-farcaster-user-data?identifier=${identifier}`
+    );
 
     if (!response.ok) {
       console.error(response);
@@ -93,15 +95,16 @@ async function fetchSybilProbability(fid: number): Promise<{
   }
 }
 
-async function fetchUserData(fid: number): Promise<UserData> {
-  const [userData, reports, sybilProbability] = await Promise.all([
-    fetchFarcasterUserData(fid),
+async function fetchUserData(identifier: number | string): Promise<UserData> {
+  const userData = await fetchFarcasterUserData(identifier);
+  if (userData === null)
+    throw new Error("Couldn't fetch user's Farcaster data in fetchUserData");
+  const { fid } = userData;
+
+  const [reports, sybilProbability] = await Promise.all([
     fetchReports(fid),
     fetchSybilProbability(fid),
   ]);
-
-  if (userData === null)
-    throw new Error("Couldn't fetch user's Farcaster data in fetchUserData");
 
   return {
     ...userData,
@@ -110,10 +113,16 @@ async function fetchUserData(fid: number): Promise<UserData> {
   };
 }
 
-export function useUserData(fid: number): SWRResponse<UserData, FetchError> {
-  return useSWR<UserData, FetchError>([fid], fetchUserData, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    shouldRetryOnError: false,
-  });
+export function useUserData(
+  identifier: number | string | null
+): SWRResponse<UserData, FetchError> {
+  return useSWR<UserData, FetchError>(
+    identifier ? [identifier] : null,
+    fetchUserData,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      shouldRetryOnError: false,
+    }
+  );
 }

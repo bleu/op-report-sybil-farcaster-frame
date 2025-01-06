@@ -16,19 +16,23 @@ export default function Frontend(
 ) {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<FrameContext>();
-
   const [added, setAdded] = useState(false);
-
   const [addFrameResult, setAddFrameResult] = useState("");
+  const [searchIdentifier, setSearchIdentifier] = useState<string>("");
+  const [currentIdentifier, setCurrentIdentifier] = useState<
+    number | string | null
+  >(null);
 
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
+
+  const reporterFid = context?.user.fid;
 
   const {
     data: targetData,
     error: targetError,
     isLoading: targetIsLoading,
-  } = useUserData(807252);
+  } = useUserData(currentIdentifier);
 
   const { success, reportSybil, attestationError, createReportError } =
     useReportSybil({
@@ -43,6 +47,7 @@ export default function Frontend(
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [isVerified, setIsVerified] = useState(false);
 
+  // SDK initialization effect
   useEffect(() => {
     const load = async () => {
       const context = await sdk.context;
@@ -71,6 +76,12 @@ export default function Frontend(
       };
     }
   }, [isSDKLoaded]);
+
+  const handleSearch = () => {
+    if (searchIdentifier) {
+      setCurrentIdentifier(searchIdentifier);
+    }
+  };
 
   const addFrame = useCallback(async () => {
     try {
@@ -118,7 +129,7 @@ export default function Frontend(
     setIsVerified(false);
   }
 
-  if (!isSDKLoaded || targetIsLoading) {
+  if (!isSDKLoaded) {
     return <div>Loading...</div>;
   }
 
@@ -131,7 +142,31 @@ export default function Frontend(
         paddingRight: context?.client.safeAreaInsets?.right ?? 0,
       }}
     >
-      <div className="w-[320px] h-[480px] flex flex-col justify-between items-center mt-16 mx-auto py-2 px-2 gap-4">
+      <div className="w-[320px] flex flex-col justify-between items-center mt-16 mx-auto py-2 px-2 gap-4">
+        {/* Search Bar */}
+        <div className="w-full flex gap-2">
+          <input
+            type="text"
+            value={searchIdentifier}
+            onChange={(e) => setSearchIdentifier(e.target.value)}
+            placeholder="User fid or fname"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-black"
+          />
+          <Button
+            onClick={handleSearch}
+            className="bg-red-700 hover:bg-red-600 text-white"
+            disabled={targetIsLoading}
+          >
+            {targetIsLoading ? "Loading..." : "Search"}
+          </Button>
+        </div>
+
+        {targetError && (
+          <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            Failed to load user data
+          </div>
+        )}
+
         {targetData && (
           <div className="w-full bg-slate-100 rounded-lg p-4 shadow-md">
             <div className="flex items-center mb-4">
@@ -189,42 +224,47 @@ export default function Frontend(
             </div>
           </div>
         )}
+
         {success === undefined && (
           <>
-            <ReCAPTCHA
-              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
-              ref={recaptchaRef}
-              onChange={handleChange}
-              onExpired={handleExpired}
-            />
-            <div className="grid grid-cols-2 gap-4 w-full">
-              <Button
-                className="w-full h-12 flex justify-center items-center bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
-                onClick={() => {
-                  reportSybil({
-                    reporterFid: BigInt(807252),
-                    targetFid: BigInt(807252),
-                    reportedAsSybil: false,
-                  });
-                }}
-                disabled={!isConnected || !isVerified}
-              >
-                Report Human
-              </Button>
-              <Button
-                className="w-full h-12 bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
-                onClick={() => {
-                  reportSybil({
-                    reporterFid: BigInt(807252),
-                    targetFid: BigInt(807252),
-                    reportedAsSybil: true,
-                  });
-                }}
-                disabled={!isConnected || !isVerified}
-              >
-                Report Sybil
-              </Button>
-            </div>
+            {currentIdentifier && (
+              <>
+                <ReCAPTCHA
+                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+                  ref={recaptchaRef}
+                  onChange={handleChange}
+                  onExpired={handleExpired}
+                />
+                <div className="grid grid-cols-2 gap-4 w-full">
+                  <Button
+                    className="w-full h-12 flex justify-center items-center bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
+                    onClick={() => {
+                      reportSybil({
+                        reporterFid: BigInt(reporterFid || 0),
+                        targetFid: BigInt(targetData?.fid || 0),
+                        reportedAsSybil: false,
+                      });
+                    }}
+                    disabled={!isConnected || !isVerified}
+                  >
+                    Report Human
+                  </Button>
+                  <Button
+                    className="w-full h-12 bg-red-700 hover:bg-red-600 text-white disabled:bg-gray-500"
+                    onClick={() => {
+                      reportSybil({
+                        reporterFid: BigInt(reporterFid || 0),
+                        targetFid: BigInt(targetData?.fid || 0),
+                        reportedAsSybil: true,
+                      });
+                    }}
+                    disabled={!isConnected || !isVerified}
+                  >
+                    Report Sybil
+                  </Button>
+                </div>
+              </>
+            )}
             <div className="w-full flex flex-col">
               <Button
                 className="w-full bg-red-700 hover:bg-red-600 disabled:bg-gray-500"
@@ -248,6 +288,7 @@ export default function Frontend(
             </Button>
           </>
         )}
+
         {success === true && (
           <>
             <div className="w-full h-full flex flex-col gap-4 items-center justify-start">
@@ -263,6 +304,7 @@ export default function Frontend(
             </div>
           </>
         )}
+
         {success === false && (
           <>
             <div className="w-full h-full flex flex-col gap-4 items-center justify-start">
