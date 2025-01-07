@@ -10,10 +10,10 @@ import {
 } from "@ethereum-attestation-service/eas-sdk";
 import { useCallback, useEffect, useState } from "react";
 import { Address, encodePacked, keccak256, zeroAddress } from "viem";
+import { optimism } from "viem/chains";
 import { useSignTypedData } from "wagmi";
 import { useSigner } from "./useSigner";
 import { solidityPackedKeccak256, hexlify, toUtf8Bytes } from "ethers";
-
 export interface ReportParams {
   reporterFid: bigint;
   targetFid: bigint;
@@ -24,7 +24,6 @@ const REPORT_SYBIL_SCHEMA_STRING =
   "uint256 reporterFid, uint256 targetFid, bool reportedAsSybil";
 
 const EAS_OP_CONTRACT_ADDRESS = "0x4200000000000000000000000000000000000021";
-const OP_CHAIN_ID = 10;
 
 const schemaUID = keccak256(
   encodePacked(
@@ -47,7 +46,7 @@ export function verifyReportSybilAttestation({
     const EAS_CONFIG: OffchainConfig = {
       address: EAS_OP_CONTRACT_ADDRESS,
       version: "1.0.1",
-      chainId: BigInt(OP_CHAIN_ID),
+      chainId: BigInt(optimism.id),
     };
     const easOffchain = new Offchain(
       EAS_CONFIG,
