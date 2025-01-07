@@ -11,7 +11,6 @@ interface WarpcastUser {
   imageUrl: string;
 }
 
-const GET_USER_BY_FID_ENDPOINT = "https://client.warpcast.com/v2/user-by-fid";
 const GET_USER_BY_USERNAME_ENDPOINT =
   "https://client.warpcast.com/v2/user-by-username";
 const DEFAULT_IMAGE_URL =
@@ -30,18 +29,10 @@ interface WarpcastResponse {
   };
 }
 
-const validateFid = (value: string): boolean => {
-  const numValue = parseInt(value);
-  return !isNaN(numValue) && /^-?\d*\.?\d+$/.test(value);
-};
-
 async function fetchWarpcastUser(identifier: string): Promise<WarpcastUser> {
-  const isFid = validateFid(identifier);
-  const endpoint = isFid
-    ? `${GET_USER_BY_FID_ENDPOINT}?fid=${identifier}`
-    : `${GET_USER_BY_USERNAME_ENDPOINT}?username=${identifier}`;
-
-  const response = await fetch(endpoint);
+  const response = await fetch(
+    `${GET_USER_BY_USERNAME_ENDPOINT}?username=${identifier}`
+  );
 
   if (!response.ok) {
     console.error("Warpcast API error:", response.status, response.statusText);

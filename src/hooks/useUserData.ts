@@ -21,7 +21,7 @@ interface FetchError extends Error {
   status?: number;
 }
 
-async function fetchFarcasterUserData(identifier: number | string): Promise<{
+async function fetchFarcasterUserData(identifier: string): Promise<{
   fid: number;
   fname: string;
   displayName: string;
@@ -33,7 +33,7 @@ async function fetchFarcasterUserData(identifier: number | string): Promise<{
     );
 
     if (!response.ok) {
-      console.error(response);
+      // console.error(response);
       return null;
     }
 
@@ -95,7 +95,7 @@ async function fetchSybilProbability(fid: number): Promise<{
   }
 }
 
-async function fetchUserData(identifier: number | string): Promise<UserData> {
+async function fetchUserData(identifier: string): Promise<UserData> {
   const userData = await fetchFarcasterUserData(identifier);
   if (userData === null)
     throw new Error("Couldn't fetch user's Farcaster data in fetchUserData");
@@ -114,7 +114,7 @@ async function fetchUserData(identifier: number | string): Promise<UserData> {
 }
 
 export function useUserData(
-  identifier: number | string | null
+  identifier: string | null
 ): SWRResponse<UserData, FetchError> {
   return useSWR<UserData, FetchError>(
     identifier ? [identifier] : null,

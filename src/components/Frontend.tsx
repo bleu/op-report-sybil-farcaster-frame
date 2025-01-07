@@ -19,9 +19,9 @@ export default function Frontend(
   const [added, setAdded] = useState(false);
   const [addFrameResult, setAddFrameResult] = useState("");
   const [searchIdentifier, setSearchIdentifier] = useState<string>("");
-  const [currentIdentifier, setCurrentIdentifier] = useState<
-    number | string | null
-  >(null);
+  const [currentIdentifier, setCurrentIdentifier] = useState<string | null>(
+    null
+  );
 
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
@@ -149,7 +149,7 @@ export default function Frontend(
             type="text"
             value={searchIdentifier}
             onChange={(e) => setSearchIdentifier(e.target.value)}
-            placeholder="User fid or fname"
+            placeholder="Enter fname"
             className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-black"
           />
           <Button
@@ -227,7 +227,7 @@ export default function Frontend(
 
         {success === undefined && (
           <>
-            {currentIdentifier && (
+            {currentIdentifier && targetData && (
               <>
                 <ReCAPTCHA
                   sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
