@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, ComponentType } from "react";
 import sdk, { type FrameContext } from "@farcaster/frame-sdk";
 import { useAccount, useDisconnect, useConnect, useChainId } from "wagmi";
 import { Spinner } from "~/components/ui/Spinner";
@@ -10,13 +10,18 @@ import { Button } from "~/components/ui/Button";
 import { useReportSybil } from "~/hooks/useReportSybil";
 import { useUserData } from "~/hooks/useUserData";
 
-import ReCAPTCHA from "react-google-recaptcha";
-
 import dynamic from "next/dynamic";
+import { ReCAPTCHAProps } from "react-google-recaptcha";
 
-const ReCAPTCHAComponent = dynamic(() => import("react-google-recaptcha"), {
-  ssr: false, // This is important as ReCAPTCHA needs browser APIs
-});
+const ReCAPTCHAComponent = dynamic<ReCAPTCHAProps>(
+  () =>
+    import("react-google-recaptcha").then(
+      (mod) => mod.default as ComponentType<ReCAPTCHAProps>
+    ),
+  {
+    ssr: false,
+  }
+);
 
 export default function Frontend(
   { title }: { title?: string } = { title: "Check Sybil" }
@@ -259,7 +264,6 @@ export default function Frontend(
               <>
                 <ReCAPTCHAComponent
                   sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
-                  key="recaptcha"
                   onChange={handleChange}
                   onExpired={handleExpired}
                 />
