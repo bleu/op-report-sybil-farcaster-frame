@@ -20,8 +20,11 @@ export async function GET(request: Request) {
       );
     }
 
-    const humanReports = await getHumanReportCount(BigInt(parsedFid));
-    const sybilReports = await getSybilReportCount(BigInt(parsedFid));
+    const parsedFidBigInt = BigInt(parsedFid);
+    const [humanReports, sybilReports] = await Promise.all([
+      getHumanReportCount(parsedFidBigInt),
+      getSybilReportCount(parsedFidBigInt),
+    ]);
 
     return Response.json({
       success: true,
