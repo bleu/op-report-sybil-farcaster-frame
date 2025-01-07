@@ -155,7 +155,7 @@ export default function Frontend(
             value={searchIdentifier}
             onChange={(e) => setSearchIdentifier(e.target.value)}
             placeholder="Enter fname"
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-black"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-black focus:outline-none"
           />
           <Button
             onClick={handleSearch}
@@ -169,6 +169,18 @@ export default function Frontend(
         {targetError && (
           <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             Failed to load user data
+          </div>
+        )}
+
+        {attestationError && (
+          <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            Error on attestation request
+          </div>
+        )}
+
+        {createReportError && (
+          <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            Error connecting to database
           </div>
         )}
 
@@ -297,7 +309,7 @@ export default function Frontend(
         {success === true && (
           <>
             <div className="w-full h-full flex flex-col gap-4 items-center justify-start">
-              <span>Thanks for your report!</span>
+              {!attestationError && <span>Thanks for your report!</span>}
               <Button
                 className="w-full h-12 bg-red-700 hover:bg-red-600 text-white"
                 onClick={() => {
@@ -325,9 +337,6 @@ export default function Frontend(
             </div>
           </>
         )}
-
-        {attestationError && JSON.stringify(attestationError)}
-        {createReportError && JSON.stringify(createReportError)}
       </div>
     </div>
   );
