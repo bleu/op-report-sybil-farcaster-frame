@@ -103,7 +103,7 @@ export default function Frontend(
     }
   }, []);
 
-  async function handleCaptchaSubmission(token: string | null) {
+  const handleCaptchaSubmission = useCallback(async (token: string | null) => {
     try {
       if (token) {
         await fetch("/api/recaptcha", {
@@ -119,15 +119,15 @@ export default function Frontend(
     } catch (e) {
       setIsVerified(false);
     }
-  }
+  }, []);
 
-  const handleChange = (token: string | null) => {
+  const handleChange = useCallback((token: string | null) => {
     handleCaptchaSubmission(token);
-  };
+  }, []);
 
-  function handleExpired() {
+  const handleExpired = useCallback(() => {
     setIsVerified(false);
-  }
+  }, []);
 
   if (!isSDKLoaded) {
     return <div>Loading...</div>;
