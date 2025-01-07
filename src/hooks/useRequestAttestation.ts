@@ -4,12 +4,21 @@ import {
   OffchainAttestationTypedData,
   TransactionSigner,
   EAS,
+  OffchainAttestationVersion,
+  Offchain,
+  OffchainConfig,
 } from "@ethereum-attestation-service/eas-sdk";
 import { useCallback, useEffect, useState } from "react";
 import { Address, encodePacked, keccak256, zeroAddress } from "viem";
+import { optimism } from "viem/chains";
 import { useSignTypedData } from "wagmi";
 import { useSigner } from "./useSigner";
 import { solidityPackedKeccak256, hexlify, toUtf8Bytes } from "ethers";
+export interface ReportParams {
+  reporterFid: bigint;
+  targetFid: bigint;
+  reportedAsSybil: boolean;
+}
 
 const REPORT_SYBIL_SCHEMA_STRING =
   "uint256 reporterFid, uint256 targetFid, bool reportedAsSybil";
@@ -23,7 +32,7 @@ const schemaUID = keccak256(
   )
 );
 
-export async function verifyReportSybilAttestation({
+export function verifyReportSybilAttestation({
   attester,
   signer,
   signedAttestation,
@@ -32,26 +41,23 @@ export async function verifyReportSybilAttestation({
   signer: TransactionSigner;
   signedAttestation: SignedOffchainAttestation;
 }) {
-  // Initialize EAS SDK
-  const eas = new EAS(EAS_OP_CONTRACT_ADDRESS, { signer }); // Sepolia address
-  const easOffchain = await eas.getOffchain();
-  const schemaEncoder = new SchemaEncoder(REPORT_SYBIL_SCHEMA_STRING);
   try {
+    const eas = new EAS(EAS_OP_CONTRACT_ADDRESS, { signer }); // Sepolia address
+    const EAS_CONFIG: OffchainConfig = {
+      address: EAS_OP_CONTRACT_ADDRESS,
+      version: "1.0.1",
+      chainId: BigInt(optimism.id),
+    };
+    const easOffchain = new Offchain(
+      EAS_CONFIG,
+      OffchainAttestationVersion.Version2,
+      eas
+    );
+
     const isValid = easOffchain.verifyOffchainAttestationSignature(
       attester,
       signedAttestation
     );
-
-    if (isValid) {
-      // Decode the attestation data
-      const schemaEncoder = new SchemaEncoder(
-        "uint256 reporterFid, uint256 targetFid, bool reportedAsSybil"
-      );
-      const decodedData = schemaEncoder.decodeData(
-        signedAttestation.message.data
-      );
-    }
-
     return isValid;
   } catch (error) {
     console.error("Error verifying attestation:", error);
@@ -115,6 +121,8 @@ export function useRequestAttestation({
   chainId: number;
   attester: string | undefined;
 }) {
+  const [isVerified, setIsVerified] = useState<boolean>(false);
+  const signer = useSigner();
   const {
     data: signature,
     signTypedData,
@@ -123,15 +131,15 @@ export function useRequestAttestation({
     isPending,
   } = useSignTypedData();
 
-  const signer = useSigner();
-
   const [attestationData, setAttestationData] =
     useState<SignedOffchainAttestation>({} as SignedOffchainAttestation);
 
   const schemaEncoder = new SchemaEncoder(REPORT_SYBIL_SCHEMA_STRING);
 
   const requestAttestation = useCallback(
-    (reporterFid: bigint, targetFid: bigint, reportedAsSybil: boolean) => {
+    (params: ReportParams) => {
+      const { reporterFid, targetFid, reportedAsSybil } = params;
+
       const encodedData = schemaEncoder.encodeData([
         { name: "reporterFid", value: reporterFid, type: "uint256" },
         { name: "targetFid", value: targetFid, type: "uint256" },
@@ -245,17 +253,23 @@ export function useRequestAttestation({
         console.error("There's no signer");
         return;
       }
-      console.log("verifying if signed attestation is valid...");
-      console.log({ newAttestationData });
-      verifyReportSybilAttestation({
+
+      const newIsVerified = verifyReportSybilAttestation({
         attester: attester as `0x${string}`,
         signer,
         signedAttestation: newAttestationData,
-      }).then((response) => {
-        console.log("is signed attestation valid? ->", response);
       });
+
+      setIsVerified(newIsVerified);
     }
   }, [signature, attester, signer]);
 
-  return { requestAttestation, attestationData, error, isError, isPending };
+  return {
+    requestAttestation,
+    attestationData,
+    error,
+    isError,
+    isPending,
+    isVerified,
+  };
 }
