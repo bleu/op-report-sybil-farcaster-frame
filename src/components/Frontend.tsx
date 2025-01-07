@@ -3,6 +3,7 @@
 import { useEffect, useCallback, useState, useRef } from "react";
 import sdk, { type FrameContext } from "@farcaster/frame-sdk";
 import { useAccount, useDisconnect, useConnect, useChainId } from "wagmi";
+import { Spinner } from "~/components/ui/Spinner";
 
 import { config } from "~/components/providers/WagmiProvider";
 import { Button } from "~/components/ui/Button";
@@ -130,7 +131,11 @@ export default function Frontend(
   }, []);
 
   if (!isSDKLoaded) {
-    return <div>Loading...</div>;
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
   }
 
   return (
@@ -154,10 +159,10 @@ export default function Frontend(
           />
           <Button
             onClick={handleSearch}
-            className="bg-red-700 hover:bg-red-600 text-white"
+            className="bg-red-700 hover:bg-red-600 text-white flex justify-center items-center"
             disabled={targetIsLoading}
           >
-            {targetIsLoading ? "Loading..." : "Search"}
+            {targetIsLoading ? <Spinner /> : "Search"}
           </Button>
         </div>
 
