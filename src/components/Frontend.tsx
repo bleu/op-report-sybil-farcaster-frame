@@ -218,26 +218,32 @@ export default function Frontend(
                     targetData.sybilReports.toLocaleString()}
                 </span>
               </div>
-              {targetData?.sybilProbability && (
-                <div className="mt-2 pt-2 border-t border-gray-200">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">
-                      Sybil Probability
-                    </span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {(targetData.sybilProbability * 100).toFixed(1) + "%"}
-                    </span>
-                  </div>
-                  <div className="w-full h-2 bg-gray-200 rounded-full mt-1">
-                    <div
-                      className="h-full bg-red-600 rounded-full"
-                      style={{
-                        width: `${targetData.sybilProbability * 100}%`,
-                      }}
-                    ></div>
-                  </div>
+              <div className="mt-2 pt-2 border-t border-gray-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">
+                    Sybil Probability
+                  </span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {targetData?.sybilProbability !== undefined
+                      ? (targetData.sybilProbability * 100).toFixed(1) + "%"
+                      : "unknown"}
+                  </span>
                 </div>
-              )}
+                <div
+                  className={`w-full h-2 rounded-full mt-1 ${
+                    targetData?.sybilProbability !== undefined
+                      ? "bg-gray-200"
+                      : "bg-gray-500"
+                  }`}
+                >
+                  <div
+                    className="h-full bg-red-600 rounded-full"
+                    style={{
+                      width: `${(targetData.sybilProbability ?? 0) * 100}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
             </div>
           </div>
         )}
