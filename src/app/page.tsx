@@ -3,7 +3,7 @@ import App from "./app";
 
 const appUrl = process.env.NEXT_PUBLIC_URL;
 
-export const frame = {
+const frame = {
   version: "next",
   imageUrl: `${appUrl}/opengraph-image`,
   button: {
