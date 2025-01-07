@@ -45,6 +45,7 @@ export default function Frontend(
   const { disconnect } = useDisconnect();
   const { connect } = useConnect();
 
+  //@ts-ignore
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [isVerified, setIsVerified] = useState(false);
 
@@ -252,8 +253,10 @@ export default function Frontend(
           <>
             {currentIdentifier && targetData && (
               <>
+                {/* @ts-ignore */}
                 <ReCAPTCHA
                   sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+                  //@ts-ignore
                   ref={recaptchaRef}
                   onChange={handleChange}
                   onExpired={handleExpired}
