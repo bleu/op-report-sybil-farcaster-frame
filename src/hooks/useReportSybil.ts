@@ -37,7 +37,12 @@ export function useReportSybil({
   } = useCreateReport(report);
 
   useEffect(() => {
-    if (attestationData && reportParamsState && !success) {
+    if (
+      attestationData &&
+      reportParamsState &&
+      !success &&
+      isAttestationVerified
+    ) {
       setReport({
         reporterFid: reportParamsState.reporterFid.toString(),
         targetFid: reportParamsState.targetFid.toString(),
