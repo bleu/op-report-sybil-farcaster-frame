@@ -1,3 +1,16 @@
+import {
+  createApiResponse,
+  validateQueryParam,
+  withErrorHandling,
+} from "~/utils/api-helpers";
+
+interface WarpcastUser {
+  fid: number;
+  fname: string;
+  displayName: string;
+  imageUrl: string;
+}
+
 const GET_USER_BY_FID_ENDPOINT = "https://client.warpcast.com/v2/user-by-fid";
 const GET_USER_BY_USERNAME_ENDPOINT =
   "https://client.warpcast.com/v2/user-by-username";
@@ -17,78 +30,38 @@ interface WarpcastResponse {
   };
 }
 
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const identifier = searchParams.get("identifier");
+const validateFid = (value: string): boolean => {
+  const numValue = parseInt(value);
+  return !isNaN(numValue) && /^-?\d*\.?\d+$/.test(value);
+};
 
-    if (!identifier) {
-      return Response.json(
-        {
-          success: false,
-          error: "identifier parameter is required",
-        },
-        { status: 400 }
-      );
-    }
+async function fetchWarpcastUser(identifier: string): Promise<WarpcastUser> {
+  const isFid = validateFid(identifier);
+  const endpoint = isFid
+    ? `${GET_USER_BY_FID_ENDPOINT}?fid=${identifier}`
+    : `${GET_USER_BY_USERNAME_ENDPOINT}?username=${identifier}`;
 
-    const isFid = /^-?\d*\.?\d+$/.test(identifier);
+  const response = await fetch(endpoint);
 
-    if (isFid) {
-      const fid = parseInt(identifier);
-      if (isNaN(fid)) {
-        return Response.json(
-          {
-            success: false,
-            error: "Invalid FID format",
-          },
-          { status: 400 }
-        );
-      }
-    }
-    const response = isFid
-      ? await fetch(`${GET_USER_BY_FID_ENDPOINT}?fid=${identifier}`)
-      : await fetch(`${GET_USER_BY_USERNAME_ENDPOINT}?username=${identifier}`);
-
-    if (!response.ok) {
-      console.error(
-        "Warpcast API error:",
-        response.status,
-        response.statusText
-      );
-      return Response.json(
-        {
-          success: false,
-          error: "Failed to fetch user data",
-        },
-        { status: response.status }
-      );
-    }
-
-    const data = (await response.json()) as WarpcastResponse;
-    const fid = data.result.user.fid ?? "";
-    const fname = data.result.user.username ?? "";
-    const displayName = data.result.user.displayName ?? "";
-    const imageUrl = data.result.user.pfp
-      ? data.result.user.pfp.url
-      : DEFAULT_IMAGE_URL;
-    return Response.json({
-      success: true,
-      data: {
-        fid,
-        fname,
-        displayName,
-        imageUrl,
-      },
-    });
-  } catch (e) {
-    console.error("Error in fetchFarcasterUserData:", e);
-    return Response.json(
-      {
-        success: false,
-        error: "Internal server error",
-      },
-      { status: 500 }
-    );
+  if (!response.ok) {
+    console.error("Warpcast API error:", response.status, response.statusText);
+    throw new Error("Failed to fetch user data");
   }
+
+  const data = (await response.json()) as WarpcastResponse;
+  return {
+    fid: data.result.user.fid,
+    fname: data.result.user.username,
+    displayName: data.result.user.displayName,
+    imageUrl: data.result.user.pfp?.url ?? DEFAULT_IMAGE_URL,
+  };
 }
+
+const handler = async (request: Request): Promise<Response> => {
+  const { searchParams } = new URL(request.url);
+  const identifier = validateQueryParam(searchParams, "identifier");
+  const userData = await fetchWarpcastUser(identifier);
+  return Response.json(createApiResponse(userData));
+};
+
+export const GET = withErrorHandling(handler);
