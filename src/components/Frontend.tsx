@@ -299,7 +299,6 @@ export default function Frontend(
               >
                 Add frame to client
               </Button>
-              <span>{addFrameResult}</span>
             </div>
 
             <Button
