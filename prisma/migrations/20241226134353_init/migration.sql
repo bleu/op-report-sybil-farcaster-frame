@@ -6,6 +6,8 @@ CREATE TABLE "reports" (
     "cast_hash" CHAR(42),
     "message_hash" CHAR(42),
     "network" INTEGER,
+    "reported_as_sybil" BOOLEAN NOT NULL,
+    "attestation" JSONB,
     "report_timestamp" TIMESTAMP(6),
     "created_at" TIMESTAMPTZ(6) DEFAULT CURRENT_TIMESTAMP,
 

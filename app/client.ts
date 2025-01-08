@@ -1,8 +1,12 @@
 import { PrismaClient, Report } from "@prisma/client";
+import { JsonObject, JsonArray } from "@prisma/client/runtime/library";
 
 const prisma = new PrismaClient();
 
-export type CreateReportParams = Omit<Report, "id" | "createdAt">;
+export interface CreateReportParams
+  extends Omit<Report, "id" | "createdAt" | "attestation"> {
+  attestation: string | number | boolean | JsonObject | JsonArray | undefined;
+}
 
 export async function createReport(data: CreateReportParams) {
   const report = await prisma.report.create({
@@ -13,7 +17,14 @@ export async function createReport(data: CreateReportParams) {
 
 export async function getSybilReportCount(fid: bigint) {
   const result =
-    await prisma.$queryRaw`SELECT COUNT(DISTINCT reporter_fid) FROM reports as count WHERE sybil_fid = ${fid}`;
+    await prisma.$queryRaw`SELECT COUNT(DISTINCT reporter_fid) FROM reports as count WHERE sybil_fid = ${fid} AND reported_as_sybil = true`;
+  //@ts-ignore
+  return Number(result[0].count);
+}
+
+export async function getHumanReportCount(fid: bigint) {
+  const result =
+    await prisma.$queryRaw`SELECT COUNT(DISTINCT reporter_fid) FROM reports as count WHERE sybil_fid = ${fid} AND reported_as_sybil = false`;
   //@ts-ignore
   return Number(result[0].count);
 }
@@ -21,7 +32,7 @@ export async function getSybilReportCount(fid: bigint) {
 export async function getSybilReports(fid: bigint) {
   const reports = await prisma.report.findMany({
     where: {
-      sybilFid: { equals: fid },
+      targetFid: { equals: fid },
     },
   });
 
@@ -29,7 +40,7 @@ export async function getSybilReports(fid: bigint) {
     return {
       ...report,
       reporterFid: report.reporterFid.toString(),
-      sybilFid: report.sybilFid.toString(),
+      targetFid: report.targetFid.toString(),
     };
   });
 
