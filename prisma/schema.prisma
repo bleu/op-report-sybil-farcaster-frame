@@ -27,7 +27,7 @@ model Report {
 
 model SybilProbability {
   fid              BigInt      @id @map("fid")
-  fname            String      @map("fname")
+  fname            String?      @map("fname")
   sybilProbability Float?      @map("sybil_probability") @db.Real
   sybilDiagnosis   Boolean?    @map("sybil_diagnosis") @db.Boolean
   lastUpdated      DateTime    @default(now()) @map("last_updated") @db.Timestamptz(6)
