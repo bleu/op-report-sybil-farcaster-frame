@@ -1,21 +1,24 @@
 "use client";
 
-import { getSession } from "~/auth";
-import { Providers } from "~/app/providers";
 import dynamic from "next/dynamic";
 
 const Frontend = dynamic(() => import("~/components/Frontend"), {
   ssr: false,
 });
 
-export default async function App(
+const WagmiProvider = dynamic(
+  () => import("~/components/providers/WagmiProvider"),
+  {
+    ssr: false,
+  }
+);
+
+export default function App(
   { title }: { title?: string } = { title: "Check Sybil" }
 ) {
-  const session = await getSession();
-
   return (
-    <Providers session={session}>
+    <WagmiProvider>
       <Frontend title={title} />
-    </Providers>
+    </WagmiProvider>
   );
 }
