@@ -2,17 +2,10 @@ import {
   SchemaEncoder,
   SignedOffchainAttestation,
   OffchainAttestationTypedData,
-  TransactionSigner,
-  EAS,
-  OffchainAttestationVersion,
-  Offchain,
-  OffchainConfig,
 } from "@ethereum-attestation-service/eas-sdk";
 import { useCallback, useEffect, useState } from "react";
-import { Address, encodePacked, keccak256, zeroAddress } from "viem";
-import { optimism } from "viem/chains";
+import { encodePacked, keccak256, zeroAddress } from "viem";
 import { useSignTypedData } from "wagmi";
-import { useSigner } from "./useSigner";
 import { solidityPackedKeccak256, hexlify, toUtf8Bytes } from "ethers";
 export interface ReportParams {
   reporterFid: bigint;
@@ -31,39 +24,6 @@ const schemaUID = keccak256(
     [REPORT_SYBIL_SCHEMA_STRING, zeroAddress, true]
   )
 );
-
-export function verifyReportSybilAttestation({
-  attester,
-  signer,
-  signedAttestation,
-}: {
-  attester: Address;
-  signer: TransactionSigner;
-  signedAttestation: SignedOffchainAttestation;
-}) {
-  try {
-    const eas = new EAS(EAS_OP_CONTRACT_ADDRESS, { signer }); // Sepolia address
-    const EAS_CONFIG: OffchainConfig = {
-      address: EAS_OP_CONTRACT_ADDRESS,
-      version: "1.0.1",
-      chainId: BigInt(optimism.id),
-    };
-    const easOffchain = new Offchain(
-      EAS_CONFIG,
-      OffchainAttestationVersion.Version2,
-      eas
-    );
-
-    const isValid = easOffchain.verifyOffchainAttestationSignature(
-      attester,
-      signedAttestation
-    );
-    return isValid;
-  } catch (error) {
-    console.error("Error verifying attestation:", error);
-    return false;
-  }
-}
 
 function computeAttestationUID({
   version,
@@ -121,8 +81,6 @@ export function useRequestAttestation({
   chainId: number;
   attester: string | undefined;
 }) {
-  const [isVerified, setIsVerified] = useState<boolean>(false);
-  const signer = useSigner();
   const {
     data: signature,
     signTypedData,
@@ -145,7 +103,7 @@ export function useRequestAttestation({
         { name: "targetFid", value: targetFid, type: "uint256" },
         { name: "reportedAsSybil", value: reportedAsSybil, type: "bool" },
       ]);
-      if (!attester || !signer) return;
+      if (!attester) return;
 
       const domain = {
         name: "EAS Attestation",
@@ -226,7 +184,7 @@ export function useRequestAttestation({
         message,
       });
     },
-    [chainId, signTypedData, attester, signer]
+    [chainId, signTypedData, attester]
   );
 
   useEffect(() => {
@@ -243,26 +201,8 @@ export function useRequestAttestation({
         uid,
       };
       setAttestationData(newAttestationData);
-
-      if (!attester) {
-        console.error("There's no attester");
-        return;
-      }
-
-      if (!signer) {
-        console.error("There's no signer");
-        return;
-      }
-
-      const newIsVerified = verifyReportSybilAttestation({
-        attester: attester as `0x${string}`,
-        signer,
-        signedAttestation: newAttestationData,
-      });
-
-      setIsVerified(newIsVerified);
     }
-  }, [signature, attester, signer]);
+  }, [signature, attester]);
 
   return {
     requestAttestation,
@@ -270,6 +210,5 @@ export function useRequestAttestation({
     error,
     isError,
     isPending,
-    isVerified,
   };
 }

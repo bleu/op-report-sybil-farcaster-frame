@@ -1,6 +1,12 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import {
+  EAS,
+  Offchain,
+  OffchainAttestationVersion,
+  OffchainConfig,
+  SignedOffchainAttestation,
+} from "@ethereum-attestation-service/eas-sdk";
+import { Address } from "viem";
+import { optimism } from "viem/chains";
 
 import { createReport, type CreateReportParams } from "~/app/client";
 
@@ -13,6 +19,39 @@ export interface CreateReportParamsQuery
   targetFid: string;
 }
 
+const EAS_OP_CONTRACT_ADDRESS = "0x4200000000000000000000000000000000000021";
+
+function verifyReportSybilAttestation({
+  attester,
+  attestation,
+}: {
+  attester: Address;
+  attestation: SignedOffchainAttestation;
+}) {
+  try {
+    const eas = new EAS(EAS_OP_CONTRACT_ADDRESS); // Sepolia address
+    const EAS_CONFIG: OffchainConfig = {
+      address: EAS_OP_CONTRACT_ADDRESS,
+      version: "1.0.1",
+      chainId: BigInt(optimism.id),
+    };
+    const easOffchain = new Offchain(
+      EAS_CONFIG,
+      OffchainAttestationVersion.Version2,
+      eas
+    );
+
+    const isValid = easOffchain.verifyOffchainAttestationSignature(
+      attester,
+      attestation
+    );
+    return isValid;
+  } catch (error) {
+    console.error("Error verifying attestation:", error);
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
   if (request.method !== "POST") {
     return Response.json(
@@ -23,7 +62,12 @@ export async function POST(request: Request) {
 
   const data = (await request.json()) as CreateReportParamsQuery;
 
-  const neededKeys = ["reporterFid", "targetFid", "reportedAsSybil"];
+  const neededKeys = [
+    "reporterFid",
+    "targetFid",
+    "reportedAsSybil",
+    "attestation",
+  ];
 
   const queriedKeys = Object.keys(data);
 
@@ -39,6 +83,35 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+
+  const attestation = JSON.parse(data.attestation as string) as {
+    attester: Address;
+    attestation: SignedOffchainAttestation;
+  };
+
+  console.log({ attestation });
+
+  let isValid;
+  try {
+    isValid = verifyReportSybilAttestation(attestation);
+  } catch (e) {
+    return Response.json(
+      {
+        message: `A valid attestation is needed to create a report. Got error: ${
+          (e as Error).message
+        }`,
+      },
+      { status: 400 }
+    );
+  }
+
+  if (!isValid)
+    return Response.json(
+      {
+        message: `A valid attestation is needed to create a report. Got invalid attestation`,
+      },
+      { status: 400 }
+    );
 
   const typedData = {
     ...data,

@@ -27,7 +27,6 @@ export function useReportSybil({
     attestationData,
     error: attestationError,
     isPending: isAttestationPending,
-    isVerified: isAttestationVerified,
   } = useRequestAttestation({ chainId, attester });
 
   const {
@@ -37,12 +36,7 @@ export function useReportSybil({
   } = useCreateReport(report);
 
   useEffect(() => {
-    if (
-      attestationData &&
-      reportParamsState &&
-      !success &&
-      isAttestationVerified
-    ) {
+    if (attestationData && reportParamsState && !success && account.address) {
       setReport({
         reporterFid: reportParamsState.reporterFid.toString(),
         targetFid: reportParamsState.targetFid.toString(),
@@ -52,27 +46,19 @@ export function useReportSybil({
         castHash: null,
         sybilProbability:
           sybilProbability !== undefined ? sybilProbability : null,
-        attestation:
-          isAttestationVerified && attestationData
-            ? JSON.stringify(
-                {
-                  attestation: attestationData,
-                  attester: account.address,
-                },
-                (key, value) =>
-                  typeof value === "bigint" ? value.toString() + "n" : value
-              )
-            : undefined,
+        attestation: attestationData
+          ? JSON.stringify(
+              {
+                attestation: attestationData,
+                attester: account.address,
+              },
+              (key, value) =>
+                typeof value === "bigint" ? value.toString() : value
+            )
+          : undefined,
       });
     }
-  }, [
-    attestationData,
-    reportParamsState,
-    chainId,
-    sybilProbability,
-    isAttestationVerified,
-    success,
-  ]);
+  }, [attestationData, reportParamsState, chainId, sybilProbability, success]);
 
   const reportSybil = useCallback(
     (params: ReportParams) => {
