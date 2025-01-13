@@ -63,9 +63,9 @@ async function fetchSybilProbability(fid: number): Promise<{
 
     const data = await response.json();
     return {
-      sybilProbability: data.sybilProbability,
-      humanReports: data.humanReports,
-      sybilReports: data.sybilReports,
+      sybilProbability: data.data.sybilProbability,
+      humanReports: data.data.humanReports,
+      sybilReports: data.data.sybilReports,
     };
   } catch (e) {
     return {
