@@ -84,42 +84,43 @@ ngrok http --url=<your-ngrok-url> http://localhost:3000
 
 ### 🔌 API Reference
 
-The API provides two GET endpoints:
+The API provides a single GET endpoint:
 
-##### 1. Get Report Count
-
-```
-GET /get-report-count?fid=<fid>
+```http
+GET /api/check-sybil?fid={fid}
 ```
 
-Returns the unique reporters count for that fid:
+##### Success Reponse (200)
 
-```
-{ reportCount }
-```
-
-##### 2. Get Reports
-
-```
-GET /get-reports?fid=<fid>
-```
-
-Returns all the reports pointing the fid as sybil:
-
-```
+```typescript
 {
-  reports: {
-   id,
-   reporterFid,
-   targetFid,
-   castHash,
-   messageHash,
-   network,
-   reportTimestamp,
-   createdAt,
-  }[]
+  "success": true,
+  "data": {
+    "fid": string,
+    "fname": string | null,
+    "sybilProbability": number | null,
+    "diagnosis": "benign" | "sybil" | null,
+    "humanReports": number,
+    "sybilReports": number,
+    "lastUpdatedProbability": string // ISO 8601 date string
+  }
 }
 ```
+
+##### Field descriptions
+
+- fid: The Farcaster ID that was queried
+- fname: The Farcaster username associated with the FID, if any
+- sybilProbability: Probability score of the account being a sybil (0-1), if available
+- diagnosis: Final diagnosis based on sybil probability
+  - "benign": Account is classified as legitimate
+  - "sybil": Account is classified as a sybil
+  - null: No classification available
+- humanReports: Number of unique reporters who flagged this account as human
+- sybilReports: Number of unique reporters who flagged this account as sybil
+- lastUpdatedProbability: Timestamp of when the sybil probability was last updated
+
+#####
 
 ### 📝 License
 
