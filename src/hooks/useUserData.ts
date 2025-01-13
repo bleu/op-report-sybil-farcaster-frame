@@ -2,10 +2,6 @@
 
 import useSWR, { SWRResponse } from "swr";
 
-const SYBIL_PROBABILITY_ENDPOINT =
-  process.env.NEXT_PUBLIC_SYBIL_PROBABILITY_ENDPOINT ??
-  "https://127.0.0.1:3000/check-sybil";
-
 interface UserData {
   fid: number;
   fname: string;
@@ -33,7 +29,6 @@ async function fetchFarcasterUserData(identifier: string): Promise<{
     );
 
     if (!response.ok) {
-      // console.error(response);
       return null;
     }
 
@@ -50,48 +45,34 @@ async function fetchFarcasterUserData(identifier: string): Promise<{
   }
 }
 
-async function fetchReports(fid: number): Promise<{
+async function fetchSybilProbability(fid: number): Promise<{
+  sybilProbability: number | undefined;
   humanReports: number | undefined;
   sybilReports: number | undefined;
 }> {
   try {
-    const response = await fetch(`/api/get-reports?fid=${fid}`);
+    const response = await fetch(`/api/check-sybil?fid=${fid}`);
 
     if (!response.ok) {
       return {
+        sybilProbability: undefined,
         humanReports: undefined,
         sybilReports: undefined,
       };
     }
 
-    const data = (await response.json()).data as {
-      humanReports: number;
-      sybilReports: number;
-    };
-    return data;
-  } catch (e) {
-    console.error("Error in fetchReports:", e);
+    const data = await response.json();
     return {
+      sybilProbability: data.sybilProbability,
+      humanReports: data.humanReports,
+      sybilReports: data.sybilReports,
+    };
+  } catch (e) {
+    return {
+      sybilProbability: undefined,
       humanReports: undefined,
       sybilReports: undefined,
     };
-  }
-}
-
-async function fetchSybilProbability(fid: number): Promise<{
-  sybilProbability: number | undefined;
-}> {
-  try {
-    const response = await fetch(`${SYBIL_PROBABILITY_ENDPOINT}/${fid}`);
-
-    if (!response.ok) {
-      return { sybilProbability: undefined };
-    }
-
-    const data = await response.json();
-    return data.numeric_output;
-  } catch (e) {
-    return { sybilProbability: undefined };
   }
 }
 
@@ -101,14 +82,10 @@ async function fetchUserData(identifier: string): Promise<UserData> {
     throw new Error("Couldn't fetch user's Farcaster data in fetchUserData");
   const { fid } = userData;
 
-  const [reports, sybilProbability] = await Promise.all([
-    fetchReports(fid),
-    fetchSybilProbability(fid),
-  ]);
+  const sybilProbability = await fetchSybilProbability(fid);
 
   return {
     ...userData,
-    ...reports,
     ...sybilProbability,
   };
 }

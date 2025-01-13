@@ -1,7 +1,6 @@
-import { PrismaClient, Report } from "@prisma/client";
+import { Report } from "@prisma/client";
 import { JsonObject, JsonArray } from "@prisma/client/runtime/library";
-
-const prisma = new PrismaClient();
+import { prisma } from "~/lib/prisma";
 
 export interface CreateReportParams
   extends Omit<Report, "id" | "createdAt" | "attestation"> {
@@ -13,6 +12,20 @@ export async function createReport(data: CreateReportParams) {
     data,
   });
   return report;
+}
+
+export async function getSybilProbability(fid: bigint) {
+  const result = await prisma.sybilProbability.findFirst({
+    where: { fid },
+    select: {
+      fid: true,
+      fname: true,
+      sybilProbability: true,
+      sybilDiagnosis: true,
+      lastUpdated: true,
+    },
+  });
+  return result;
 }
 
 export async function getSybilReportCount(fid: bigint) {
