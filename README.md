@@ -1,18 +1,24 @@
 # 📢 Report Sybil
 
-A Farcaster Cast Action that enables reporting of suspicious sybil accounts, creating an open database of potential sybil activity that can be used by researchers and developers to improve sybil detection algorithms.
+A Farcaster Frame V2 that enables checking and reporting suspicious sybil accounts, creating an open database of potential sybil activity that can be used by researchers and developers to improve sybil detection algorithms.
 
-### 🔗 Adding the Cast Action on Warpcast
+### 🔗 Usage on Warpcast
 
 You can help the community by reporting suspicious sybil activity! Here's how:
 
 1. **Quick Share**: Create a cast with this link to share Report Sybil on Warpcast:
 
 ```
-https://op-report-sybil-farcaster-frame.vercel.app/api/add-report-sybil
+https://op-report-sybil-farcaster-frame.vercel.app
 ```
 
-2. **Adding without sharing**: Alternatively, add the cast-action directly through Warpcast's developer tools using [this link](https://warpcast.com/~/developers/frames?url=https%3A%2F%2Fop-report-sybil-farcaster-frame.vercel.app%2Fapi%2Fadd-report-sybil)
+2. **Adding without sharing**: Alternatively, add the cast-action directly through Warpcast's developer tools using [this link](https://warpcast.com/~/developers/frames?url=https%3A%2F%2Fop-report-sybil-farcaster-frame.vercel.app)
+
+3. To check if a user is sybil, just open the frame and search for the user name you'd like to verify. The result will contain basic user informations and the sybil probability. You can then provide your own feedback (report the user as sybil or benign). The image below illustrates the frame UI.
+
+![image](https://github.com/user-attachments/assets/f62df938-104a-4de5-b4b7-2839b34c490d)
+
+
 
 We encourage users to report suspicious sybil accounts to help maintain the integrity of the Farcaster ecosystem.
 
