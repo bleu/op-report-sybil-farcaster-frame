@@ -1,9 +1,24 @@
-const DASHBOARD_URL = process.env.DASHBOARD_URL ?? "";
+"use client"
+
+import { useEffect } from "react";
+import useSWR from "swr";
+
+async function getData() {
+  const response = await fetch("/api/dashboard")
+  return response.json()
+}
 
 export default function DashboardPage() {
+  const { data, error, isLoading } = useSWR("data", getData)
+  
+  console.log({ data, error, isLoading })
+  
+  if (error) return <div>Failed to load</div>
+  if (isLoading) return <div>Loading...</div>
+  
   return (
     <div className="container p-0">
-      <iframe src={DASHBOARD_URL} width="1920px" height="1080px"></iframe>
+      {data && <p>{JSON.stringify(data)}</p>}
     </div>
   );
 }
