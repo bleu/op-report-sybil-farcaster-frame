@@ -14,6 +14,20 @@ export type Stats = {
   value: number;
 };
 
+export type StatsFormatted = {
+  detected_sybils: number;
+  detected_benigns: number;
+  detected_unknowns: number;
+  true_detected_sybils: number;
+  false_detected_sybils: number;
+  true_detected_benigns: number;
+  false_detected_benigns: number;
+  sybils_detected_unknowns: number;
+  benigns_detected_unknowns: number;
+  true_unknowns: number;
+  total_reports: number;
+}
+
 export type DashboardData = {
   probabilitiesSerialized: Probability[];
   reportsSerialized: Report[];
