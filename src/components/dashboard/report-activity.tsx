@@ -28,6 +28,11 @@ export const ReportActivity = ({ data }: { data: Report[] }) => {
           margin={{ top: 10, bottom: 50, left: 60, right: 10 }}
           padding={0.3}
           colors={["#6B7280"]}
+          theme={{
+            text: {
+              fill: "currentColor",
+            },
+          }}
           borderRadius={5}
           axisBottom={{
             tickSize: 5,
@@ -44,7 +49,7 @@ export const ReportActivity = ({ data }: { data: Report[] }) => {
                   dominantBaseline="middle"
                   style={{
                     fontSize: "12px",
-                    fill: "#666",
+                    fill: "currentColor",
                   }}
                 >
                   {props.value.length > 5

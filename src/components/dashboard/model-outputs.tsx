@@ -129,7 +129,7 @@ export const ModelOutputs = ({ data }: { data: StatsFormatted }) => {
             data.detected_sybils > 0
               ? (data.true_detected_sybils / data.detected_sybils) * 100
               : 0,
-          color: "bg-red-600",
+          color: "bg-red-600 dark:bg-red-500",
         },
         {
           id: "incorrect",
@@ -139,7 +139,7 @@ export const ModelOutputs = ({ data }: { data: StatsFormatted }) => {
             data.detected_sybils > 0
               ? (data.false_detected_sybils / data.detected_sybils) * 100
               : 0,
-          color: "bg-red-600/80",
+          color: "bg-red-600/80 dark:bg-red-500/80",
         },
       ],
     },
@@ -155,7 +155,7 @@ export const ModelOutputs = ({ data }: { data: StatsFormatted }) => {
             data.detected_benigns > 0
               ? (data.true_detected_benigns / data.detected_benigns) * 100
               : 0,
-          color: "bg-blue-600",
+          color: "bg-blue-600 dark:bg-blue-500",
         },
         {
           id: "incorrect",
@@ -165,7 +165,7 @@ export const ModelOutputs = ({ data }: { data: StatsFormatted }) => {
             data.detected_benigns > 0
               ? (data.false_detected_benigns / data.detected_benigns) * 100
               : 0,
-          color: "bg-blue-600/80",
+          color: "bg-blue-600/80 dark:bg-blue-500/80",
         },
       ],
     },
@@ -181,7 +181,7 @@ export const ModelOutputs = ({ data }: { data: StatsFormatted }) => {
             data.detected_unknowns > 0
               ? (data.true_unknowns / data.detected_unknowns) * 100
               : 0,
-          color: "bg-gray-600",
+          color: "bg-gray-600 dark:bg-gray-500",
         },
         {
           id: "sybil",
@@ -191,7 +191,7 @@ export const ModelOutputs = ({ data }: { data: StatsFormatted }) => {
             data.detected_unknowns > 0
               ? (data.sybils_detected_unknowns / data.detected_unknowns) * 100
               : 0,
-          color: "bg-red-600",
+          color: "bg-red-600 dark:bg-red-500",
         },
         {
           id: "benign",
@@ -201,7 +201,7 @@ export const ModelOutputs = ({ data }: { data: StatsFormatted }) => {
             data.detected_unknowns > 0
               ? (data.benigns_detected_unknowns / data.detected_unknowns) * 100
               : 0,
-          color: "bg-blue-600",
+          color: "bg-blue-600 dark:bg-blue-500",
         },
       ],
     },

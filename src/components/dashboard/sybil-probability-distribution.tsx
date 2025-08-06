@@ -16,6 +16,11 @@ export const SybilProbabilityDistribution = ({
           indexBy="end_interval"
           margin={{ top: 10, right: 10, bottom: 50, left: 60 }}
           colors={["#6B7280"]}
+          theme={{
+            text: {
+              fill: "currentColor",
+            },
+          }}
           padding={0.3}
           borderRadius={5}
           enableLabel={false}

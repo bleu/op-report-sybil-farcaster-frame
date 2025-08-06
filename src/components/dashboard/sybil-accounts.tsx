@@ -48,6 +48,11 @@ export const SybilAccounts = ({ data }: { data: StatsFormatted }) => {
           enableArcLinkLabels={true}
           arcLinkLabel={(d) => `${d.id} (${d.value.toLocaleString()})`}
           colors={["#6B7280", "#EF4444", "#3B82F6"]}
+          theme={{
+            text: {
+              fill: "currentColor",
+            },
+          }}
           layers={[
             "arcs",
             "arcLabels",
