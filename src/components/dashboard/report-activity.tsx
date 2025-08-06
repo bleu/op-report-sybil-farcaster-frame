@@ -1,25 +1,39 @@
-import { ResponsiveBar } from '@nivo/bar';
-import { Report } from '~/lib/dashboard-types';
-import { formatDate } from '~/utils/date';
-import { GraphLayout } from './graph-layout';
+import { ResponsiveBar } from "@nivo/bar";
+import { Report } from "~/lib/dashboard-types";
+import { formatDate } from "~/utils/date";
+import { GraphLayout } from "./graph-layout";
+
+const getIntegerTicks = (data: Report[]) => {
+  const maxValue = Math.max(...data.map((d) => d.report_count));
+  const ticks = [];
+  for (let i = 0; i <= maxValue; i++) {
+    if (i % Math.ceil(maxValue / 5) === 0) {
+      ticks.push(i);
+    }
+  }
+  return ticks;
+};
 
 export const ReportActivity = ({ data }: { data: Report[] }) => {
   const formattedData = aggregateData(data);
+  const integerTicks = getIntegerTicks(formattedData);
 
   return (
     <GraphLayout title="Report Activity">
       <div className="h-full">
         <ResponsiveBar
           data={formattedData}
-          keys={['report_count']}
+          keys={["report_count"]}
           indexBy="date"
-          margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+          margin={{ top: 10, bottom: 50, left: 60, right: 10 }}
           padding={0.3}
+          colors={["#6B7280"]}
+          borderRadius={5}
           axisBottom={{
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: 'Period',
+            legend: "Period",
             legendOffset: 32,
             renderTick(props) {
               return (
@@ -29,11 +43,13 @@ export const ReportActivity = ({ data }: { data: Report[] }) => {
                   textAnchor="middle"
                   dominantBaseline="middle"
                   style={{
-                    fontSize: '12px',
-                    fill: '#666',
+                    fontSize: "12px",
+                    fill: "#666",
                   }}
                 >
-                  {props.value.length > 5 ? String(props.value).substring(0, 5).trim() + '...' : props.value}
+                  {props.value.length > 5
+                    ? String(props.value).substring(0, 5).trim() + "..."
+                    : props.value}
                 </text>
               );
             },
@@ -42,12 +58,14 @@ export const ReportActivity = ({ data }: { data: Report[] }) => {
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: 'Report Count',
+            legend: "Report Count",
             legendOffset: -40,
-            legendPosition: 'middle',
+            legendPosition: "middle",
+            tickValues: integerTicks,
           }}
           enableLabel={false}
           tooltipLabel={(d) => `${d.data.date}`}
+          gridYValues={integerTicks}
         />
       </div>
     </GraphLayout>
@@ -58,7 +76,6 @@ const aggregateData = (data: Report[]) => {
   const daysCount = data.length;
 
   const dateFormat = (() => {
-    console.log(daysCount);
     switch (true) {
       case daysCount <= 14:
         return "day";

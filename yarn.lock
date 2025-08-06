@@ -3754,6 +3754,7 @@ __metadata:
     "@types/react-dom": "npm:^18"
     "@types/react-google-recaptcha": "npm:^2.1.9"
     "@upstash/redis": "npm:^1.34.3"
+    clsx: "npm:^2.1.1"
     eslint: "npm:^8"
     eslint-config-next: "npm:15.0.3"
     next: "npm:15.0.3"
@@ -3765,6 +3766,7 @@ __metadata:
     react-dom: "npm:19.0.0-rc-66855b96-20241106"
     react-google-recaptcha: "npm:^3.1.0"
     swr: "npm:^2.3.0"
+    tailwind-merge: "npm:^3.3.1"
     tailwindcss: "npm:^3.4.1"
     typescript: "npm:^5"
     viem: "npm:^2.21.55"
@@ -3862,6 +3864,13 @@ __metadata:
   version: 1.2.1
   resolution: "clsx@npm:1.2.1"
   checksum: 10c0/34dead8bee24f5e96f6e7937d711978380647e936a22e76380290e35486afd8634966ce300fc4b74a32f3762c7d4c0303f442c3e259f4ce02374eb0c82834f27
+  languageName: node
+  linkType: hard
+
+"clsx@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "clsx@npm:2.1.1"
+  checksum: 10c0/c4c8eb865f8c82baab07e71bfa8897c73454881c4f99d6bc81585aecd7c441746c1399d08363dc096c550cceaf97bd4ce1e8854e1771e9998d9f94c4fe075839
   languageName: node
   linkType: hard
 
@@ -9298,6 +9307,13 @@ __metadata:
   peerDependencies:
     react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
   checksum: 10c0/192497881013654bc82d2787b60ad0701113e8ae41c511dfa8d55bcf58582657a92a4cb2854d4ea2ceaa1055e67e58daf9bd98ada2786a3035ba12898da578f1
+  languageName: node
+  linkType: hard
+
+"tailwind-merge@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "tailwind-merge@npm:3.3.1"
+  checksum: 10c0/b84c6a78d4669fa12bf5ab8f0cdc4400a3ce0a7c006511af4af4be70bb664a27466dbe13ee9e3b31f50ddf6c51d380e8192ce0ec9effce23ca729d71a9f63818
   languageName: node
   linkType: hard
 
