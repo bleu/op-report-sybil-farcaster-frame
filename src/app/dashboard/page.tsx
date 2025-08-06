@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect } from "react";
 import useSWR from "swr";
+import { DashboardDataResponse } from "~/lib/dashboard-types";
+import { ReportActivity } from "~/components/dashboard/report-activity";
 
 async function getData() {
   const response = await fetch("/api/dashboard")
@@ -9,16 +10,28 @@ async function getData() {
 }
 
 export default function DashboardPage() {
-  const { data, error, isLoading } = useSWR("data", getData)
-  
-  console.log({ data, error, isLoading })
+  const { data, error, isLoading } = useSWR<DashboardDataResponse>("data", getData)
   
   if (error) return <div>Failed to load</div>
   if (isLoading) return <div>Loading...</div>
+
+  if (!data) return <div>No data</div>
+
   
   return (
-    <div className="container p-0">
-      {data && <p>{JSON.stringify(data)}</p>}
+    <div className="grid grid-cols-2 gap-4 items-center size-full h-[100vh]">
+      <div className="flex flex-col gap-4 h-full">
+        {/* <ReportActivity data={data?.data.reportsSerialized} /> */}
+      </div>
+      <div className="flex flex-col gap-4 h-full">
+        {/* <ReportActivity data={data?.data.reportsSerialized} /> */}
+      </div>
+      <div className="flex flex-col gap-4 h-full">
+        <ReportActivity data={data?.data.reportsSerialized} />
+      </div>
+      <div className="flex flex-col gap-4 h-full">
+        {/* <ReportActivity data={data?.data.reportsSerialized} /> */}
+      </div>
     </div>
   );
 }
