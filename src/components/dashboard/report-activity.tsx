@@ -21,6 +21,22 @@ export const ReportActivity = ({ data }: { data: Report[] }) => {
             tickRotation: 0,
             legend: 'Period',
             legendOffset: 32,
+            renderTick(props) {
+              return (
+                <text
+                  x={props.x}
+                  y={props.y + 15}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  style={{
+                    fontSize: '12px',
+                    fill: '#666',
+                  }}
+                >
+                  {props.value.length > 5 ? String(props.value).substring(0, 5).trim() + '...' : props.value}
+                </text>
+              );
+            },
           }}
           axisLeft={{
             tickSize: 5,
@@ -30,7 +46,9 @@ export const ReportActivity = ({ data }: { data: Report[] }) => {
             legendOffset: -40,
             legendPosition: 'middle',
           }}
-          />
+          enableLabel={false}
+          tooltipLabel={(d) => `${d.data.date}`}
+        />
       </div>
     </div>
   );
