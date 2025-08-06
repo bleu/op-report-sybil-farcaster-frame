@@ -5,12 +5,12 @@ const getProbabilities = async () => {
   const probabilities = await prisma.$queryRaw`
     WITH intervals AS (
       SELECT 
-        (LEAST(WIDTH_BUCKET(sybil_probability, 0, 1, 20), 20) - 1) * 0.05 AS start_interval,
-        LEAST(WIDTH_BUCKET(sybil_probability, 0, 1, 20), 20) * 0.05 AS end_interval,
+        (LEAST(WIDTH_BUCKET(sybil_probability, 0, 1, 10), 10) - 1) * 0.1 AS start_interval,
+        LEAST(WIDTH_BUCKET(sybil_probability, 0, 1, 10), 10) * 0.1 AS end_interval,
         COUNT(*) AS count
       FROM sybil_probabilities
       WHERE sybil_probability IS NOT NULL
-      GROUP BY LEAST(WIDTH_BUCKET(sybil_probability, 0, 1, 20), 20)
+      GROUP BY LEAST(WIDTH_BUCKET(sybil_probability, 0, 1, 10), 10)
     )
     SELECT 
       start_interval,

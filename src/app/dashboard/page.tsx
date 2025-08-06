@@ -3,6 +3,7 @@
 import useSWR from "swr";
 import { DashboardDataResponse } from "~/lib/dashboard-types";
 import { ReportActivity } from "~/components/dashboard/report-activity";
+import { SybilProbabilityDistribution } from "~/components/dashboard/sybil-probability-distribution";
 
 async function getData() {
   const response = await fetch("/api/dashboard")
@@ -30,7 +31,7 @@ export default function DashboardPage() {
         <ReportActivity data={data?.data.reportsSerialized} />
       </div>
       <div className="flex flex-col gap-4 h-full">
-        {/* <ReportActivity data={data?.data.reportsSerialized} /> */}
+        <SybilProbabilityDistribution data={data?.data.probabilitiesSerialized} />
       </div>
     </div>
   );

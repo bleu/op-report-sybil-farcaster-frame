@@ -1,13 +1,13 @@
 import { ResponsiveBar } from '@nivo/bar';
 import { Report } from '~/lib/dashboard-types';
 import { formatDate } from '~/utils/date';
+import { GraphLayout } from './graph-layout';
 
 export const ReportActivity = ({ data }: { data: Report[] }) => {
   const formattedData = aggregateData(data);
 
   return (
-    <div className="flex flex-col gap-4 min-h-[300px] h-full">
-      <h2 className="text-2xl font-bold">Report Activity</h2>
+    <GraphLayout title="Report Activity">
       <div className="h-full">
         <ResponsiveBar
           data={formattedData}
@@ -50,7 +50,7 @@ export const ReportActivity = ({ data }: { data: Report[] }) => {
           tooltipLabel={(d) => `${d.data.date}`}
         />
       </div>
-    </div>
+    </GraphLayout>
   );
 };
 
