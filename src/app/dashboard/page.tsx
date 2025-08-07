@@ -34,7 +34,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-4 p-8 h-[100vh] size-full">
       <h1 className="text-2xl font-bold w-full border-b-2 text-center border-gray-400">
-        Monitoring dashboard
+        Monitoring dashboard - Farcaster Social Graph
       </h1>
       <div className="grid grid-cols-2 gap-4 items-center size-full h-full">
         <div className="flex flex-col gap-4 h-full">
