@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { encodePacked, keccak256, zeroAddress } from "viem";
 import { useSignTypedData } from "wagmi";
 import { solidityPackedKeccak256, hexlify, toUtf8Bytes } from "ethers";
+import { optimism } from "viem/chains";
 export interface ReportParams {
   reporterFid: bigint;
   targetFid: bigint;
@@ -75,10 +76,8 @@ function splitSignature(signature: `0x${string}`) {
 }
 
 export function useRequestAttestation({
-  chainId,
   attester,
 }: {
-  chainId: number;
   attester: string | undefined;
 }) {
   const {
@@ -108,7 +107,7 @@ export function useRequestAttestation({
       const domain = {
         name: "EAS Attestation",
         version: "1.0.1",
-        chainId,
+        chainId: optimism.id,
         verifyingContract: EAS_OP_CONTRACT_ADDRESS as `0x${string}`,
       };
 
@@ -184,7 +183,7 @@ export function useRequestAttestation({
         message,
       });
     },
-    [chainId, signTypedData, attester]
+    [signTypedData, attester]
   );
 
   useEffect(() => {

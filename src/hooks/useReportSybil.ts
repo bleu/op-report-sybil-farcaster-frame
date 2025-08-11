@@ -27,7 +27,7 @@ export function useReportSybil({
     attestationData,
     error: attestationError,
     isPending: isAttestationPending,
-  } = useRequestAttestation({ chainId, attester });
+  } = useRequestAttestation({ attester });
 
   const {
     data: success,
