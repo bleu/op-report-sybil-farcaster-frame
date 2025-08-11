@@ -1,11 +1,8 @@
+import { header } from "~/utils/consts";
+
 function logEncoding() {
   const appUrl = process.env.NEXT_PUBLIC_URL;
 
-  const header = JSON.stringify({
-    fid: 932214,
-    type: "custody",
-    key: "0xFE8F5FC4932Fadc764dF9DD57DFA8c9EcE2C6B74",
-  });
   const payload = JSON.stringify({ domain: appUrl?.split("//").at(-1) });
 
   const headerBtoa = btoa(header);

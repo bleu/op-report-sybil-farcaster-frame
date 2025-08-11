@@ -1,0 +1,6 @@
+export const header =
+  "eyJmaWQiOjEwMjIxMTAsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHhBYjA0OTg2ZjA2NDIyQzBFMDVDNzkyZUMzMUY5ZjNmOTY1ZjU4QjQyIn0";
+export const payload =
+  "eyJkb21haW4iOiJvcC1yZXBvcnQtc3liaWwtZmFyY2FzdGVyLWZyYW1lLnZlcmNlbC5hcHAifQ";
+export const signature =
+  "MHgxMjAyNDc1YzkxOTdkNTEyZTVkYTliNjQwNGNjOGJjMTAxZmJhZGFiODc3ZmU5Y2UwYjUyZWQ5NTYyOWNkMTBjMDVjZDFmNThjYTk4M2E4MGFmMDM4Y2QzMGI4YmM1ZTY5N2YzNjI1Mjc5MTNhZDY5NTgyMDhiZDRmMGNjYzEwZDFi";
